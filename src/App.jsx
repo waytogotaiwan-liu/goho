@@ -1853,6 +1853,77 @@ function AdminExport({ trips, orders, customers, ping }) {
   );
 }
 
+function AdminNewOrder({ trips, customers, orders, rentals, setDb, ping }) {
+  const [open, setOpen] = useState(false);
+  const [custId, setCustId] = useState("");
+  const [tripId, setTripId] = useState("");
+  const [role, setRole] = useState("釣手");
+  const [rental, setRental] = useState("");
+  const trip = trips.find((t) => t.id === tripId);
+  const rentalList = trip ? rentalsForTrip(trip, rentals).list : [];
+  const rentalObj = rentalList.find((x) => x.name === rental);
+  const reset = () => { setCustId(""); setTripId(""); setRole("釣手"); setRental(""); };
+  const submit = () => {
+    const c = customers.find((x) => x.id === custId);
+    if (!c) { ping("請先選擇客戶"); return; }
+    if (!trip) { ping("請先選擇船班"); return; }
+    const rem = remainOf(trip, orders);
+    const rentalPrice = rentalObj ? rentalObj.price : 0;
+    const status = rem >= 1 ? "已報名" : "候補";
+    const now = Date.now();
+    const order = { id: "O" + now, tripId: trip.id, customerId: c.id, name: c.name, nickname: c.nickname || c.name, phone: c.phone, role, price: trip.price, rental: rental || null, rentalPrice, status, paid: false, isMinor: false, createdAt: new Date().toISOString() };
+    setDb((d) => ({ ...d, orders: [...d.orders, order] }));
+    ping(status === "候補" ? "座位已滿，已登記候補 🕐" : "代客報名成功 ✅");
+    reset(); setOpen(false);
+  };
+  if (!open) return <div className="mb-1"><Btn kind="teal" full onClick={() => setOpen(true)}>➕ 代客報名</Btn></div>;
+  return (
+    <div className="rounded-2xl p-4 space-y-3" style={{ background: "#1EA89612", border: `1px solid ${C.teal}` }}>
+      <div className="font-bold text-sm" style={{ color: C.yellow }}>➕ 代客報名（後台代填）</div>
+      {customers.length === 0 ? (
+        <p className="text-sm" style={{ color: "#F7F3EC99" }}>尚無客戶資料。請先到「客戶」分頁新增出海人員，再回來報名。</p>
+      ) : (
+        <>
+          <div>
+            <label className="text-xs" style={{ color: "#F7F3EC88" }}>選擇客戶（出海人員）</label>
+            <select className={aInput} style={aStyle} value={custId} onChange={(e) => setCustId(e.target.value)}>
+              <option value="">— 請選擇 —</option>
+              {customers.map((c) => <option key={c.id} value={c.id}>{c.name}（{c.nickname || "無暱稱"}）・{c.phone || "無電話"}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs" style={{ color: "#F7F3EC88" }}>選擇船班</label>
+            <select className={aInput} style={aStyle} value={tripId} onChange={(e) => { setTripId(e.target.value); setRental(""); }}>
+              <option value="">— 請選擇 —</option>
+              {trips.map((t) => <option key={t.id} value={t.id}>{t.date}・{t.name}（剩 {remainOf(t, orders)}/{t.capacity}）</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs" style={{ color: "#F7F3EC88" }}>報名身份</label>
+            <div className="flex gap-2 mt-1">
+              {["釣手", "觀光"].map((r) => <button key={r} onClick={() => setRole(r)} className="flex-1 py-2.5 rounded-xl text-sm font-bold" style={{ background: role === r ? C.teal : "#F7F3EC12", color: role === r ? "#fff" : C.sand, border: "1px solid #F7F3EC33" }}>{r}</button>)}
+            </div>
+          </div>
+          {rentalList.length > 0 && (
+            <div>
+              <label className="text-xs" style={{ color: "#F7F3EC88" }}>裝備租借（選填）</label>
+              <select className={aInput} style={aStyle} value={rental} onChange={(e) => setRental(e.target.value)}>
+                <option value="">不租借（自備裝備）</option>
+                {rentalList.map((r) => <option key={r.name} value={r.name}>{r.name}（NT${r.price}／{r.unit}）</option>)}
+              </select>
+            </div>
+          )}
+          {trip && <div className="text-xs" style={{ color: C.teal }}>合計 → NT${(trip.price + (rentalObj ? rentalObj.price : 0)).toLocaleString()}（船資 NT${trip.price.toLocaleString()}{rentalObj ? `＋租借 NT$${rentalObj.price.toLocaleString()}` : ""}）</div>}
+          <div className="flex gap-2 pt-1">
+            <Btn kind="teal" full onClick={submit}>確認報名</Btn>
+            <Btn kind="ghost" small onClick={() => { reset(); setOpen(false); }}>收起</Btn>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function AdminPortal({ db, setDb, onExit }) {
   const [tab, setTab] = useState("dash");
   const [aToast, setAToast] = useState("");
@@ -1863,6 +1934,7 @@ function AdminPortal({ db, setDb, onExit }) {
   const lowStock = inventory.filter((i) => i.qty <= i.low);
   const setOrderStatus = (id, status) => setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, status } : o)) }));
   const setPaid = (id, paid) => setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, paid } : o)) }));
+  const delOrder = (id) => { if (window.confirm("確定永久刪除這筆訂單？此動作無法復原。")) setDb((d) => ({ ...d, orders: d.orders.filter((o) => o.id !== id) })); };
   const tabs = [["dash", "總覽"], ["orders", "訂單"], ["trips", "船班"], ["customers", "客戶"], ["inv", "庫存"], ["export", "匯出"], ["content", "內容"]];
   return (
     <div className="min-h-screen" style={{ background: C.navyDeep }}>
@@ -1909,7 +1981,8 @@ function AdminPortal({ db, setDb, onExit }) {
 
         {tab === "orders" && (
           <div className="space-y-2.5">
-            {orders.length === 0 && <p className="text-center text-sm py-8" style={{ color: "#F7F3EC66" }}>尚無訂單。前台完成報名後會即時顯示於此。</p>}
+            <AdminNewOrder trips={trips} customers={customers} orders={orders} rentals={db.rentals || RENTALS} setDb={setDb} ping={aPing} />
+            {orders.length === 0 && <p className="text-center text-sm py-8" style={{ color: "#F7F3EC66" }}>尚無訂單。可用上方「代客報名」建立，或由前台完成報名後即時顯示於此。</p>}
             {[...orders].reverse().map((o) => {
               const t = trips.find((x) => x.id === o.tripId);
               return (
@@ -1926,6 +1999,7 @@ function AdminPortal({ db, setDb, onExit }) {
                     <Btn kind={o.paid ? "teal" : "ghost"} small onClick={() => setPaid(o.id, !o.paid)}>{o.paid ? "✓ 已收款" : "標記收款"}</Btn>
                     {o.status === "候補" && <Btn small onClick={() => setOrderStatus(o.id, "已報名")}>轉正取</Btn>}
                     {o.status !== "已取消" && <Btn kind="danger" small onClick={() => setOrderStatus(o.id, "已取消")}>取消</Btn>}
+                    <Btn kind="ghost" small onClick={() => delOrder(o.id)}>🗑 刪除</Btn>
                   </div>
                 </div>
               );
