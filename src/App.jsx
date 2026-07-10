@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import * as XLSX from "xlsx";
+import { sb, api, auth, tables } from "./storage.js";
 
 /* ============ GOHO 五賀娛樂漁船 — 船班報名系統 & 內部資料庫 v2 ============ */
 /* 配色：深海藍 #0C2D48 / 潮水青 #1EA896 / 浮球橘 #F4A259 / 沙白 #F7F3EC / 頁首 #052488（同 Logo） */
@@ -321,6 +322,8 @@ function seedDb() {
   return { trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING };
 }
 async function loadStore() {
+  let localQuest = {};
+  try { const lq = await window.storage.get("goho-quest"); if (lq?.value) localQuest = JSON.parse(lq.value); } catch { /* ignore */ }
   try {
     const r = await window.storage.get("goho-erp-v2");
     if (r?.value) {
@@ -329,15 +332,25 @@ async function loadStore() {
       const normAnn = (a) => (typeof a === "string" ? { zh: a, en: "", ja: "" } : a);
       return {
         trips: (d.trips || base.trips).map((t) => ({ status: "報名中", ...t })),
-        orders: d.orders || [], customers: d.customers || [], inventory: d.inventory || base.inventory,
-        quest: d.quest || {}, announcement: normAnn(d.announcement || base.announcement), rules: d.rules || base.rules,
+        orders: [], customers: [], inventory: d.inventory || base.inventory,
+        quest: { ...(d.quest || {}), ...localQuest }, announcement: normAnn(d.announcement || base.announcement), rules: d.rules || base.rules,
         posts: d.posts || base.posts, contactPage: d.contactPage || base.contactPage, rentals: (d.rentals || base.rentals).map((r) => ({ zone: "近海", ...r })), pricing: d.pricing || base.pricing,
       };
     }
   } catch (e) { /* 首次使用 */ }
   return seedDb();
 }
-async function saveStore(db) { try { await window.storage.set("goho-erp-v2", JSON.stringify(db)); } catch (e) { console.error(e); } }
+async function saveStore(db) {
+  try {
+    const { orders, customers, ...pub } = db; // 個資不寫回公開 blob
+    const hasSession = await auth.hasSession();
+    if (hasSession) {
+      await window.storage.set("goho-erp-v2", JSON.stringify(pub)); // 後台：寫入系統內容
+    } else {
+      await window.storage.set("goho-quest", JSON.stringify(pub.quest || {})); // 公眾：任務進度存本機
+    }
+  } catch (e) { console.error(e); }
+}
 
 /* ---------- 小元件 ---------- */
 const Btn = ({ children, onClick, kind = "primary", full, small, disabled }) => {
@@ -463,7 +476,7 @@ function AnnouncementModal({ text, onClose }) {
 }
 
 /* ---------- 註冊 / 登入（含船長後台入口 + 未成年同行） ---------- */
-function RegisterModal({ customers, onRegister, onLogin, onAdmin }) {
+function RegisterModal({ onRegister, onLogin, onAdmin }) {
   const [mode, setMode] = useState(null); // null=入口選擇 | register | login
   const [f, setF] = useState({ nickname: "", name: "", gender: "", birth: "", idno: "", address: "", phone: "" });
   const [login, setLogin] = useState({ idno: "", birth: "" });
@@ -484,7 +497,6 @@ function RegisterModal({ customers, onRegister, onLogin, onAdmin }) {
 
   const submit = () => {
     if (!f.name || !f.gender || !f.birth || !f.idno || !f.address || !f.phone) { setErr(t("errRequired")); return; }
-    if (customers.some((c) => c.idno === f.idno)) { setErr(t("errDup")); return; }
     if (hasMinor === null) { setErr(t("errMinorSel")); return; }
     let minorList = [];
     if (hasMinor) {
@@ -501,10 +513,10 @@ function RegisterModal({ customers, onRegister, onLogin, onAdmin }) {
       minorMode: hasMinor ? minorMode : "none", minorCount: hasMinor ? minorCount : 0, minors: minorList,
     });
   };
-  const doLogin = () => {
-    const c = customers.find((x) => x.idno === login.idno && normBirth(x.birth) === normBirth(login.birth));
-    if (!c) { setErr(t("errLogin")); return; }
-    onLogin(c);
+  const doLogin = async () => {
+    if (!login.idno || !login.birth) { setErr(t("errLogin")); return; }
+    const ok = await onLogin(login.idno, login.birth);
+    if (!ok) setErr(t("errLogin"));
   };
 
   /* 入口選擇畫面：三種入口 */
@@ -1503,11 +1515,13 @@ function AdminCustomers({ customers, orders, setDb }) {
   const startEdit = (c) => { setEditId(c.id); setAdding(false); setF({ nickname: c.nickname || "", name: c.name, gender: c.gender, birth: c.birth, idno: c.idno, address: c.address, phone: c.phone }); };
   const saveNew = () => {
     if (!f.name || !f.idno || !f.birth) return;
-    setDb((d) => ({ ...d, customers: [...d.customers, { ...f, id: "C" + Date.now(), createdAt: new Date().toISOString(), minorMode: "none", minorCount: 0, minors: [] }] }));
+    const nc = { ...f, id: "C" + Date.now(), createdAt: new Date().toISOString(), minorMode: "none", minorCount: 0, minors: [] };
+    tables.upsertCustomer(nc).catch((e) => console.error(e));
+    setDb((d) => ({ ...d, customers: [...d.customers, nc] }));
     setAdding(false); setF(blank);
   };
-  const saveEdit = () => { setDb((d) => ({ ...d, customers: d.customers.map((c) => (c.id === editId ? { ...c, ...f } : c)) })); setEditId(null); };
-  const del = (id) => setDb((d) => ({ ...d, customers: d.customers.filter((c) => c.id !== id) }));
+  const saveEdit = () => { const merged = { ...(customers.find((c) => c.id === editId) || {}), ...f, id: editId }; tables.upsertCustomer(merged).catch((e) => console.error(e)); setDb((d) => ({ ...d, customers: d.customers.map((c) => (c.id === editId ? { ...c, ...f } : c)) })); setEditId(null); };
+  const del = (id) => { tables.deleteCustomer(id).catch((e) => console.error(e)); setDb((d) => ({ ...d, customers: d.customers.filter((c) => c.id !== id) })); };
   const Fields = ({ onSave, onCancel }) => (
     <div className="rounded-2xl p-4 space-y-2 mb-2" style={{ background: "#F7F3EC10", border: `1px solid ${C.orange}` }}>
       <div className="grid grid-cols-2 gap-2">
@@ -1872,6 +1886,7 @@ function AdminNewOrder({ trips, customers, orders, rentals, setDb, ping }) {
     const status = rem >= 1 ? "已報名" : "候補";
     const now = Date.now();
     const order = { id: "O" + now, tripId: trip.id, customerId: c.id, name: c.name, nickname: c.nickname || c.name, phone: c.phone, role, price: trip.price, rental: rental || null, rentalPrice, status, paid: false, isMinor: false, createdAt: new Date().toISOString() };
+    tables.insertOrder(order).catch((e) => console.error(e));
     setDb((d) => ({ ...d, orders: [...d.orders, order] }));
     ping(status === "候補" ? "座位已滿，已登記候補 🕐" : "代客報名成功 ✅");
     reset(); setOpen(false);
@@ -1932,9 +1947,9 @@ function AdminPortal({ db, setDb, onExit }) {
   const activeOrders = orders.filter((o) => o.status !== "已取消");
   const revenue = activeOrders.reduce((s, o) => s + (o.price || 0) + (o.rentalPrice || 0), 0);
   const lowStock = inventory.filter((i) => i.qty <= i.low);
-  const setOrderStatus = (id, status) => setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, status } : o)) }));
-  const setPaid = (id, paid) => setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, paid } : o)) }));
-  const delOrder = (id) => { if (window.confirm("確定永久刪除這筆訂單？此動作無法復原。")) setDb((d) => ({ ...d, orders: d.orders.filter((o) => o.id !== id) })); };
+  const setOrderStatus = (id, status) => { tables.updateOrder(id, { status }).catch((e) => console.error(e)); setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, status } : o)) })); };
+  const setPaid = (id, paid) => { tables.updateOrder(id, { paid }).catch((e) => console.error(e)); setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, paid } : o)) })); };
+  const delOrder = (id) => { if (window.confirm("確定永久刪除這筆訂單？此動作無法復原。")) { tables.deleteOrder(id).catch((e) => console.error(e)); setDb((d) => ({ ...d, orders: d.orders.filter((o) => o.id !== id) })); } };
   const tabs = [["dash", "總覽"], ["orders", "訂單"], ["trips", "船班"], ["customers", "客戶"], ["inv", "庫存"], ["export", "匯出"], ["content", "內容"]];
   return (
     <div className="min-h-screen" style={{ background: C.navyDeep }}>
@@ -2037,48 +2052,88 @@ export default function GohoSystem() {
   useEffect(() => { window.storage.get("goho-lang").then((r) => r?.value && setLang(r.value)).catch(() => {}); }, []);
   const pickLang = (l) => { setLang(l); window.storage.set("goho-lang", l).catch(() => {}); };
   const [pw, setPw] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
   const [toast, setToast] = useState("");
+  const [rosters, setRosters] = useState({});   // 各船班公開名冊（暱稱+人數，無個資）
+  const [myOrders, setMyOrders] = useState([]); // 登入客戶自己的訂單
 
   useEffect(() => { loadStore().then(setDbState); }, []);
+  // 載入公開名冊（座位/名冊用）
+  const refreshRosters = useCallback(async () => { try { const r = await api.list(); if (r?.rosters) setRosters(r.rosters); } catch (e) { console.error(e); } }, []);
+  useEffect(() => { refreshRosters(); }, [refreshRosters]);
+  // 進入後台：從資料表載入真實客戶/訂單
+  useEffect(() => {
+    if (!admin) return;
+    Promise.all([tables.customers(), tables.orders()])
+      .then(([cs, os]) => setDbState((d) => ({ ...d, customers: cs, orders: os })))
+      .catch((e) => console.error(e));
+  }, [admin]);
   const setDb = useCallback((fn) => { setDbState((prev) => { const next = typeof fn === "function" ? fn(prev) : fn; saveStore(next); return next; }); }, []);
   const ping = (msg) => { setToast(msg); setTimeout(() => setToast(""), 2600); };
   const questDone = (id) => setDb((d) => ({ ...d, quest: { ...d.quest, [id]: true } }));
+  // 由公開名冊組出「訂單狀」陣列，供座位計算與名冊顯示沿用原邏輯
+  const publicOrders = useMemo(() => {
+    const arr = [];
+    for (const [tripId, r] of Object.entries(rosters || {})) for (const n of (r.names || [])) arr.push({ tripId, status: "已報名", role: n.role, nickname: n.nickname, customerId: "_public" });
+    return arr;
+  }, [rosters]);
 
   if (!db) return <div className="min-h-screen flex items-center justify-center font-bold" style={{ background: C.navyDeep, color: C.sand }}>{t("loading")}</div>;
 
   const gotoTab = (t) => { setTab(t); if (t === "rules") questDone("rules"); if (t === "fees") questDone("fees"); };
-  const afterLogin = (c, msg) => { setUser(c); setStage("app"); setShowAnnounce(true); ping(msg); };
-  const handleRegister = (c) => { setDb((d) => ({ ...d, customers: [...d.customers, c] })); afterLogin(c, t("welcomeNew", { n: c.nickname || c.name })); };
-
-  const dbRef = db;
-  const handleBook = (trip, role, rental, rem, companions = []) => {
-    if (role === "觀光") { ping(t("tSightOnly")); return; }
-    const r = (dbRef.rentals || RENTALS).find((x) => x.name === rental);
-    const now = Date.now();
-    const rentalPrice = r ? r.price : 0;
-    const minors = user.minorMode === "self" ? (user.minors || []) : [];
-    const seatsNeeded = 1 + minors.length + companions.length;
-    const status = rem >= seatsNeeded ? "已報名" : "候補";
-    const mainOrder = { id: "O" + now, tripId: trip.id, customerId: user.id, name: user.name, nickname: user.nickname || user.name, phone: user.phone, role, price: trip.price, rental: rental || null, rentalPrice, status, paid: false, isMinor: false, createdAt: new Date().toISOString() };
-    const minorOrders = minors.map((m, i) => ({ id: "O" + now + "-m" + i, tripId: trip.id, customerId: user.id, name: m.name, nickname: m.name + "(未成年)", phone: user.phone, role: "觀光", price: trip.price, rental: null, rentalPrice: 0, status, paid: false, isMinor: true, isCompanion: true, companionOf: "O" + now, createdAt: new Date().toISOString() }));
-    const compOrders = companions.map((n, i) => ({ id: "O" + now + "-c" + i, tripId: trip.id, customerId: user.id, name: n, nickname: n, phone: user.phone, role: "觀光", price: trip.price, rental: null, rentalPrice: 0, status, paid: false, isMinor: false, isCompanion: true, companionOf: "O" + now, createdAt: new Date().toISOString() }));
-    setDb((d) => ({ ...d, orders: [...d.orders, mainOrder, ...minorOrders, ...compOrders], quest: { ...d.quest, book: true } }));
-    setOpenTrip(null);
-    const extra = minors.length + companions.length;
-    ping(status === "候補" ? t("tWait") : t("tBooked") + (extra ? t("tBookedX", { n: extra }) : ""));
+  const afterLogin = (c, msg, orders = []) => { setUser(c); setMyOrders(orders); setStage("app"); setShowAnnounce(true); ping(msg); };
+  // 首次註冊：走 Edge Function 建立客戶
+  const handleRegister = async (c) => {
+    try {
+      const res = await api.register(c);
+      if (res?.error === "duplicate_id") { ping(t("errDup")); return; }
+      if (!res?.ok) { ping(t("errRequired")); return; }
+      afterLogin(res.customer || c, t("welcomeNew", { n: c.nickname || c.name }));
+    } catch (e) { console.error(e); ping(t("errRequired")); }
+  };
+  // 老客戶登入：走 Edge Function 驗證（證號+生日）
+  const handleLogin = async (idno, birth) => {
+    try {
+      const res = await api.login(idno, birth);
+      if (!res?.found) return false;
+      afterLogin(res.customer, t("welcomeBack", { n: res.customer.nickname || res.customer.name }), res.orders || []);
+      return true;
+    } catch (e) { console.error(e); return false; }
   };
 
-  const handleCreateTrip = (date, service, timing) => {
+  const handleBook = async (trip, role, rental, rem, companions = []) => {
+    if (role === "觀光") { ping(t("tSightOnly")); return; }
+    try {
+      const res = await api.book({ idno: user.idno, birth: user.birth, tripId: trip.id, role, rental: rental || null, companions });
+      if (res?.error) { ping(res.error === "trip_full" ? t("tWait") : t("tPw")); return; }
+      questDone("book");
+      setOpenTrip(null);
+      await refreshRosters();
+      try { const lr = await api.login(user.idno, user.birth); if (lr?.found) setMyOrders(lr.orders || []); } catch { /* ignore */ }
+      const extra = (user.minorMode === "self" ? (user.minors || []).length : 0) + companions.length;
+      ping(res.status === "候補" ? t("tWait") : t("tBooked") + (extra ? t("tBookedX", { n: extra }) : ""));
+    } catch (e) { console.error(e); ping(t("tPw")); }
+  };
+
+  const handleCreateTrip = async (date, service, timing) => {
+    if (!user) { ping(t("errLogin")); return; }
     const price = service?.basePrice || 0;
     const tm = timing || { muster: "05:00", rodsUp: "—", back: "—", timePending: false };
-    const t = { id: "T" + Date.now(), date, name: service?.name || "自訂船班", type: service?.zone || "近海", price, muster: tm.muster, rodsUp: tm.rodsUp, back: tm.back, timePending: !!tm.timePending, capacity: 10, targets: ["洽船長"], depth: "洽船長", gear: "洽船長建議", rigs: [], note: "釣友自行開班，歡迎跟報", status: "歡迎開班" };
-    setDb((d) => ({ ...d, trips: [...d.trips, t].sort((a, b) => a.date.localeCompare(b.date)), quest: { ...d.quest, calendar: true } }));
-    setOpenNew(null);
-    setTimeout(() => setOpenTrip(t), 200);
-    ping(t("tCreated"));
+    const payload = { date, name: service?.name || "自訂船班", type: service?.zone || "近海", price, muster: tm.muster, rodsUp: tm.rodsUp, back: tm.back, timePending: !!tm.timePending, targets: ["洽船長"], depth: "洽船長" };
+    try {
+      const res = await api.createTrip({ idno: user.idno, birth: user.birth, trip: payload });
+      if (res?.error) { ping(res.error === "date_taken" ? t("otErrDup") : t("tPw")); return; }
+      const newTrip = res.trip;
+      setDbState((d) => ({ ...d, trips: [...d.trips, newTrip].sort((a, b) => a.date.localeCompare(b.date)) }));
+      questDone("calendar");
+      setOpenNew(null);
+      await refreshRosters();
+      setTimeout(() => setOpenTrip(newTrip), 200);
+      ping(t("tCreated"));
+    } catch (e) { console.error(e); ping(t("tPw")); }
   };
 
-  if (admin) return <AdminPortal db={db} setDb={setDb} onExit={() => setAdmin(false)} />;
+  if (admin) return <AdminPortal db={db} setDb={setDb} onExit={() => { auth.signOut().catch(() => {}); setAdmin(false); }} />;
 
   const tabs = [["quest", "🧭", t("navQuest")], ["calendar", "📅", t("navCal")], ["mytrips", "🎣", t("navMy")], ["rules", "📜", t("navRules")], ["fees", "💰", t("navFees")], ["services", "🛎️", t("navSvc")], ["contact", "📣", t("navCt")]];
 
@@ -2096,7 +2151,7 @@ export default function GohoSystem() {
       {stage === "welcome" && <WelcomeModal onYes={() => setStage("register")} onNo={() => setStage("noConsent")} />}
       {stage === "noConsent" && <NoConsentModal onBack={() => setStage("welcome")} onContact={() => setStage("contact")} />}
       {stage === "contact" && <ContactModal onBack={() => setStage("noConsent")} />}
-      {stage === "register" && <RegisterModal customers={db.customers} onRegister={handleRegister} onLogin={(c) => afterLogin(c, t("welcomeBack", { n: c.nickname || c.name }))} onAdmin={() => setAdminAsk(true)} />}
+      {stage === "register" && <RegisterModal onRegister={handleRegister} onLogin={handleLogin} onAdmin={() => setAdminAsk(true)} />}
       {showAnnounce && stage === "app" && <AnnouncementModal text={db.announcement} onClose={() => { setShowAnnounce(false); questDone("announce"); }} />}
 
       <header style={{ background: `linear-gradient(160deg, ${C.logoBlue} 0%, #0A2A6B 55%, ${C.navy} 100%)` }}>
@@ -2134,8 +2189,8 @@ export default function GohoSystem() {
         <main className="max-w-2xl mx-auto px-4 pt-3 pb-28">
           <div className="text-sm font-bold mb-3" style={{ color: C.tealDark }}>{t("hello", { n: user?.nickname || user?.name })}</div>
           {tab === "quest" && <QuestBoard quest={db.quest} gotoTab={gotoTab} />}
-          {tab === "calendar" && <TripCalendar trips={db.trips} orders={db.orders} onOpen={(t) => { setOpenTrip(t); questDone("calendar"); }} onOpenNew={(d) => setOpenNew(d ?? "")} />}
-          {tab === "mytrips" && <MyTripsTab trips={db.trips} orders={db.orders} user={user} onOpen={(t) => setOpenTrip(t)} />}
+          {tab === "calendar" && <TripCalendar trips={db.trips} orders={publicOrders} onOpen={(t) => { setOpenTrip(t); questDone("calendar"); }} onOpenNew={(d) => setOpenNew(d ?? "")} />}
+          {tab === "mytrips" && <MyTripsTab trips={db.trips} orders={myOrders} user={user} onOpen={(t) => setOpenTrip(t)} />}
           {tab === "rules" && <RulesTab rules={db.rules} />}
           {tab === "fees" && <FeesTab rentals={db.rentals} pricing={db.pricing} />}
           {tab === "services" && <ServicesTab />}
@@ -2164,7 +2219,7 @@ export default function GohoSystem() {
         </>
       )}
 
-      {openTrip && <TripDetail trip={openTrip} orders={db.orders} user={user} rentals={db.rentals} onBook={handleBook} onClose={() => setOpenTrip(null)} onRentalInfo={() => setShowRentalFee(true)} />}
+      {openTrip && <TripDetail trip={openTrip} orders={publicOrders} user={user} rentals={db.rentals} onBook={handleBook} onClose={() => setOpenTrip(null)} onRentalInfo={() => setShowRentalFee(true)} />}
       {openNew !== null && <OpenTripModal presetDate={openNew || ""} trips={db.trips} onCreate={handleCreateTrip} onClose={() => setOpenNew(null)} />}
       {showRentalFee && <RentalFeeModal rentals={db.rentals} trip={openTrip} onClose={() => setShowRentalFee(false)} />}
 
@@ -2172,12 +2227,13 @@ export default function GohoSystem() {
         <ModalShell onClose={() => { setAdminAsk(false); setPw(""); }}>
           <div className="p-5 space-y-3">
             <h3 className="font-black text-center" style={{ color: C.navy }}>⚓ 船長後台登入</h3>
-            <input type="password" className="w-full p-3 rounded-xl border-2 text-sm" style={{ borderColor: "#0C2D4822" }} placeholder="後台密碼" value={pw} onChange={(e) => setPw(e.target.value)} />
+            <input type="email" autoComplete="username" className="w-full p-3 rounded-xl border-2 text-sm" style={{ borderColor: "#0C2D4822" }} placeholder="管理者 Email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} />
+            <input type="password" autoComplete="current-password" className="w-full p-3 rounded-xl border-2 text-sm" style={{ borderColor: "#0C2D4822" }} placeholder="密碼" value={pw} onChange={(e) => setPw(e.target.value)} />
             <div className="grid grid-cols-2 gap-2">
-              <Btn kind="light" onClick={() => { setAdminAsk(false); setPw(""); }}>取消</Btn>
-              <Btn onClick={() => { if (pw === (import.meta.env?.VITE_ADMIN_PASSWORD || "goho888")) { setAdmin(true); setAdminAsk(false); setPw(""); } else ping(t("tPw")); }}>{t("login")}</Btn>
+              <Btn kind="light" onClick={() => { setAdminAsk(false); setPw(""); setAdminEmail(""); }}>取消</Btn>
+              <Btn onClick={async () => { const { error } = await auth.signIn(adminEmail.trim(), pw); if (error) { ping(t("tPw")); return; } setAdmin(true); setAdminAsk(false); setPw(""); setAdminEmail(""); }}>{t("login")}</Btn>
             </div>
-            <p className="text-xs text-center" style={{ color: "#0C2D4866" }}>密碼由環境變數 VITE_ADMIN_PASSWORD 設定</p>
+            <p className="text-xs text-center" style={{ color: "#0C2D4866" }}>使用 Supabase 後台建立的管理者帳號登入</p>
           </div>
         </ModalShell>
       )}
