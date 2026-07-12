@@ -318,8 +318,18 @@ const lxArr = (o, f) => (LANG !== "zh" && o && o[f + "_" + LANG] && o[f + "_" + 
 const lxAnn = (a) => (typeof a === "string" ? a : (LANG !== "zh" && a[LANG]) || a.zh || "");
 
 /* ---------- 儲存層（含舊資料合併升級） ---------- */
+// 預設行前提醒（後台可編輯：文字三語 + 套用條件）
+const DEFAULT_REMINDERS = [
+  { id: "r1", zh: "攜帶證件正本供海巡查驗", en: "Bring original ID for coast guard check", ja: "証明書原本をご持参ください（海巡署検査）", types: ["近海", "中遠程", "離島"], liveBaitOnly: false },
+  { id: "r2", zh: "提前 15 分鐘抵達安平港集合點", en: "Arrive 15 min early at the Anping Port meeting point", ja: "安平港の集合場所に15分前到着", types: ["近海", "中遠程", "離島"], liveBaitOnly: false },
+  { id: "r3", zh: "暈船者請提前 30 分鐘服用暈船藥", en: "Take seasickness medicine 30 min before departure", ja: "船酔いしやすい方は30分前に酔い止めを", types: ["近海", "中遠程", "離島"], liveBaitOnly: false },
+  { id: "r4", zh: "活餌班請自備活餌餌料", en: "Live-bait trips: bring your own bait", ja: "活き餌便は餌をご持参ください", types: ["近海", "中遠程", "離島"], liveBaitOnly: true },
+  { id: "r5", zh: "近海班免自備冰塊冰箱，船上備有共用漁獲冰箱", en: "Nearshore: no cooler needed, a shared catch cooler is onboard", ja: "近海便はクーラー不要（船に共用魚クーラーあり）", types: ["近海"], liveBaitOnly: false },
+  { id: "r6", zh: "中遠程／離島班建議自備飲水與行動糧", en: "Mid-range / island trips: bring water and snacks", ja: "中遠距離・離島便は飲料水と軽食をご持参ください", types: ["中遠程", "離島"], liveBaitOnly: false },
+  { id: "r7", zh: "以束帶標記自己的漁獲", en: "Tag your catch with a cable tie", ja: "釣果は結束バンドで目印を", types: ["近海", "中遠程", "離島"], liveBaitOnly: false },
+];
 function seedDb() {
-  return { trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING };
+  return { trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING, reminders: DEFAULT_REMINDERS };
 }
 async function loadStore() {
   let localQuest = {};
@@ -334,7 +344,7 @@ async function loadStore() {
         trips: (d.trips || base.trips).map((t) => ({ status: "報名中", ...t })),
         orders: [], customers: [], inventory: d.inventory || base.inventory,
         quest: { ...(d.quest || {}), ...localQuest }, announcement: normAnn(d.announcement || base.announcement), rules: d.rules || base.rules,
-        posts: d.posts || base.posts, contactPage: d.contactPage || base.contactPage, rentals: (d.rentals || base.rentals).map((r) => ({ zone: "近海", ...r })), pricing: d.pricing || base.pricing,
+        posts: d.posts || base.posts, contactPage: d.contactPage || base.contactPage, rentals: (d.rentals || base.rentals).map((r) => ({ zone: "近海", ...r })), pricing: d.pricing || base.pricing, reminders: (d.reminders && d.reminders.length) ? d.reminders : DEFAULT_REMINDERS,
       };
     }
   } catch (e) { /* 首次使用 */ }
@@ -1203,14 +1213,15 @@ function TripDetail({ trip, orders, user, rentals, onBook, onClose, onRentalInfo
 }
 
 /* ---------- 我的船班（動態 + 行前提醒） ---------- */
-function reminderKeysFor(trip) {
-  const keys = ["rm1", "rm2", "rm3"];
-  if (trip.name.includes("活餌") || (trip.note || "").includes("活餌")) keys.push("rm4");
-  if (trip.type === "近海") keys.push("rm5"); else keys.push("rm6");
-  keys.push("rm7");
-  return keys;
+function remindersFor(trip, list, lang) {
+  const isLive = (trip.name || "").includes("活餌") || (trip.note || "").includes("活餌");
+  return (list && list.length ? list : DEFAULT_REMINDERS)
+    .filter((r) => (r.types || []).includes(trip.type))
+    .filter((r) => (r.liveBaitOnly ? isLive : true))
+    .map((r) => (lang === "en" ? (r.en || r.zh) : lang === "ja" ? (r.ja || r.zh) : r.zh))
+    .filter(Boolean);
 }
-function MyTripsTab({ trips, orders, user, onOpen }) {
+function MyTripsTab({ trips, orders, user, onOpen, reminders }) {
   const mine = orders.filter((o) => o.customerId === user.id);
   if (mine.length === 0) return (
     <div className="text-center py-14">
@@ -1241,7 +1252,7 @@ function MyTripsTab({ trips, orders, user, onOpen }) {
             <div className="px-4 pb-4">
               <div className="rounded-xl p-3" style={{ background: "#0C2D4808" }}>
                 <div className="text-xs font-black mb-1.5" style={{ color: C.tealDark }}>{t("remTitle")}</div>
-                <ul className="space-y-1">{reminderKeysFor(tr).map((k) => <li key={k} className="text-xs flex gap-1.5" style={{ color: C.navy }}><span style={{ color: C.orange }}>•</span>{t(k)}</li>)}</ul>
+                <ul className="space-y-1">{remindersFor(tr, reminders, LANG).map((txt, i) => <li key={i} className="text-xs flex gap-1.5" style={{ color: C.navy }}><span style={{ color: C.orange }}>•</span>{txt}</li>)}</ul>
               </div>
               <button onClick={() => onOpen(tr)} className="text-xs mt-2 underline font-bold" style={{ color: C.tealDark }}>{t("viewFull")}</button>
             </div>
@@ -1939,6 +1950,66 @@ function AdminNewOrder({ trips, customers, orders, rentals, setDb, ping }) {
   );
 }
 
+
+/* ---------- 後台：行前提醒管理 ---------- */
+function AdminReminders({ db, setDb, aPing }) {
+  const list = db.reminders && db.reminders.length ? db.reminders : DEFAULT_REMINDERS;
+  const TYPES = ["近海", "中遠程", "離島"];
+  const save = (next) => setDb((d) => ({ ...d, reminders: next }));
+  const upd = (i, patch) => { const n = list.map((r, x) => (x === i ? { ...r, ...patch } : r)); save(n); };
+  const move = (i, dir) => {
+    const j = i + dir; if (j < 0 || j >= list.length) return;
+    const n = [...list]; [n[i], n[j]] = [n[j], n[i]]; save(n);
+  };
+  const del = (i) => { if (window.confirm("確定刪除這條提醒？")) { save(list.filter((_, x) => x !== i)); aPing("已刪除"); } };
+  const add = () => save([...list, { id: "r" + Date.now(), zh: "", en: "", ja: "", types: [...TYPES], liveBaitOnly: false }]);
+  const toggleType = (i, ty) => {
+    const cur = list[i].types || [];
+    upd(i, { types: cur.includes(ty) ? cur.filter((x) => x !== ty) : [...cur, ty] });
+  };
+  const reset = () => { if (window.confirm("恢復成系統預設的 7 條提醒？您目前的修改會被覆蓋。")) { save(DEFAULT_REMINDERS); aPing("已恢復預設"); } };
+  const inp = "w-full p-2 rounded-lg text-sm";
+  const inpS = { background: "#F7F3EC10", border: "1px solid #F7F3EC22", color: C.sand };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-2xl p-3 text-xs" style={{ background: "#F7F3EC10", border: "1px solid #F7F3EC22", color: "#F7F3EC99" }}>
+        這些提醒會顯示在客戶的「我的船班」。可自由新增、刪除、排序，並勾選要套用在哪種船班。
+      </div>
+      {list.map((r, i) => (
+        <div key={r.id} className="rounded-2xl p-3 space-y-2" style={{ background: "#F7F3EC10", border: "1px solid #F7F3EC22" }}>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold" style={{ color: C.yellow }}>第 {i + 1} 條</span>
+            <div className="flex gap-1">
+              <Btn kind="ghost" small onClick={() => move(i, -1)}>↑</Btn>
+              <Btn kind="ghost" small onClick={() => move(i, 1)}>↓</Btn>
+              <Btn kind="ghost" small onClick={() => del(i)}>刪除</Btn>
+            </div>
+          </div>
+          <input className={inp} style={inpS} placeholder="中文（必填）" value={r.zh || ""} onChange={(e) => upd(i, { zh: e.target.value })} />
+          <input className={inp} style={inpS} placeholder="English（留空則顯示中文）" value={r.en || ""} onChange={(e) => upd(i, { en: e.target.value })} />
+          <input className={inp} style={inpS} placeholder="日本語（留空則顯示中文）" value={r.ja || ""} onChange={(e) => upd(i, { ja: e.target.value })} />
+          <div className="flex flex-wrap gap-1.5 items-center">
+            <span className="text-xs" style={{ color: "#F7F3EC88" }}>套用：</span>
+            {TYPES.map((ty) => (
+              <button key={ty} onClick={() => toggleType(i, ty)} className="px-2.5 py-1 rounded-full text-xs font-bold"
+                style={{ background: (r.types || []).includes(ty) ? C.teal : "#F7F3EC12", color: (r.types || []).includes(ty) ? "#fff" : "#F7F3EC88" }}>{ty}</button>
+            ))}
+            <button onClick={() => upd(i, { liveBaitOnly: !r.liveBaitOnly })} className="px-2.5 py-1 rounded-full text-xs font-bold"
+              style={{ background: r.liveBaitOnly ? C.orange : "#F7F3EC12", color: r.liveBaitOnly ? C.navyDeep : "#F7F3EC88" }}>
+              {r.liveBaitOnly ? "✓ 僅活餌班" : "僅活餌班"}
+            </button>
+          </div>
+        </div>
+      ))}
+      <div className="grid grid-cols-2 gap-2">
+        <Btn onClick={add}>＋ 新增一條</Btn>
+        <Btn kind="light" onClick={reset}>恢復預設</Btn>
+      </div>
+    </div>
+  );
+}
+
 function AdminPortal({ db, setDb, onExit }) {
   const [tab, setTab] = useState("dash");
   const [aToast, setAToast] = useState("");
@@ -1950,7 +2021,7 @@ function AdminPortal({ db, setDb, onExit }) {
   const setOrderStatus = (id, status) => { tables.updateOrder(id, { status }).catch((e) => console.error(e)); setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, status } : o)) })); };
   const setPaid = (id, paid) => { tables.updateOrder(id, { paid }).catch((e) => console.error(e)); setDb((d) => ({ ...d, orders: d.orders.map((o) => (o.id === id ? { ...o, paid } : o)) })); };
   const delOrder = (id) => { if (window.confirm("確定永久刪除這筆訂單？此動作無法復原。")) { tables.deleteOrder(id).catch((e) => console.error(e)); setDb((d) => ({ ...d, orders: d.orders.filter((o) => o.id !== id) })); } };
-  const tabs = [["dash", "總覽"], ["orders", "訂單"], ["trips", "船班"], ["customers", "客戶"], ["inv", "庫存"], ["export", "匯出"], ["content", "內容"]];
+  const tabs = [["dash", "總覽"], ["orders", "訂單"], ["trips", "船班"], ["customers", "客戶"], ["inv", "庫存"], ["export", "匯出"], ["content", "內容"], ["remind", "行前提醒"]];
   return (
     <div className="min-h-screen" style={{ background: C.navyDeep }}>
       <div className="max-w-2xl mx-auto p-4 pb-24">
@@ -2025,6 +2096,7 @@ function AdminPortal({ db, setDb, onExit }) {
         {tab === "trips" && <AdminTrips trips={trips} orders={activeOrders} rentals={db.rentals} setDb={setDb} />}
         {tab === "customers" && <AdminCustomers customers={customers} orders={orders} setDb={setDb} />}
         {tab === "content" && <AdminContent db={db} setDb={setDb} ping={aPing} />}
+        {tab === "remind" && <AdminReminders db={db} setDb={setDb} aPing={aPing} />}
 
         {tab === "inv" && <AdminInventory inventory={inventory} rentals={db.rentals} setDb={setDb} ping={aPing} />}
         {aToast && <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-2xl font-bold text-sm shadow-xl" style={{ background: C.sand, color: C.navy, border: `2px solid ${C.teal}` }}>{aToast}</div>}
@@ -2190,7 +2262,7 @@ export default function GohoSystem() {
           <div className="text-sm font-bold mb-3" style={{ color: C.tealDark }}>{t("hello", { n: user?.nickname || user?.name })}</div>
           {tab === "quest" && <QuestBoard quest={db.quest} gotoTab={gotoTab} />}
           {tab === "calendar" && <TripCalendar trips={db.trips} orders={publicOrders} onOpen={(t) => { setOpenTrip(t); questDone("calendar"); }} onOpenNew={(d) => setOpenNew(d ?? "")} />}
-          {tab === "mytrips" && <MyTripsTab trips={db.trips} orders={myOrders} user={user} onOpen={(t) => setOpenTrip(t)} />}
+          {tab === "mytrips" && <MyTripsTab trips={db.trips} orders={myOrders} user={user} reminders={db.reminders} onOpen={(t) => setOpenTrip(t)} />}
           {tab === "rules" && <RulesTab rules={db.rules} />}
           {tab === "fees" && <FeesTab rentals={db.rentals} pricing={db.pricing} />}
           {tab === "services" && <ServicesTab />}
