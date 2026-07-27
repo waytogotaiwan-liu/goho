@@ -733,7 +733,7 @@ function remainOf(trip, orders) {
 function hoursUntil(dateStr) { return (new Date(dateStr + "T00:00:00").getTime() - Date.now()) / 3.6e6; }
 
 function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
-  const [view, setView] = useState("list");
+  const [view, setView] = useState("month"); /* 預設顯示月曆檢視 */
   const now = new Date();
   const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() }); // m: 0-11
   const shiftMonth = (d) => setYm(({ y, m }) => { const nm = m + d; return { y: y + Math.floor(nm / 12), m: ((nm % 12) + 12) % 12 }; });
@@ -747,6 +747,10 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
     if (!st.bookable) return st.color || C.gray;
     return rem === 0 ? C.red : rem <= 3 ? C.orange : C.teal;
   };
+  /* 清單僅顯示「客戶裝置當天（含）以後」的船班；以本地時間為準 */
+  const _n = new Date();
+  const todayStr = `${_n.getFullYear()}-${String(_n.getMonth() + 1).padStart(2, "0")}-${String(_n.getDate()).padStart(2, "0")}`;
+  const upcomingTrips = trips.filter((tp) => tp.date >= todayStr);
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -772,7 +776,8 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
           <div className="grid grid-cols-7 gap-1">
             {cells.map((d, i) => {
               const key = d ? `${ym.y}-${String(ym.m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}` : null;
-              const trip = key && byDate[key];
+              /* 過去日期不顯示船班資訊（以客戶裝置當天為準；當天仍顯示） */
+              const trip = key && key >= todayStr ? byDate[key] : null;
               const rem = trip ? remainOf(trip, orders) : 0;
               const openable = key && !trip && hoursUntil(key) >= 24;
               return (
@@ -790,7 +795,7 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
         </div>
       )}
 
-      {trips.map((tp) => {
+      {upcomingTrips.map((tp) => {
         const rem = remainOf(tp, orders);
         const st = TRIP_STATUS[tp.status] || {};
         return (
