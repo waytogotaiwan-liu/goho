@@ -17,18 +17,26 @@ const CONTACT = {
   port: "https://maps.app.goo.gl/5T8iUM7eLcNJxhTL7",
 };
 
-const SERVICES = [
-  { icon: "🐙", name: "沉船礁大物", zone: "近海", price: "NT$2,500", basePrice: 2500 },
-  { icon: "🎣", name: "近海敲底小搞搞", zone: "近海", price: "NT$2,500", basePrice: 2500 },
-  { icon: "🐟", name: "近海鐵板遊動丸", zone: "近海", price: "NT$2,500", basePrice: 2500 },
-  { icon: "🚤", name: "中遠程鐵板遊動丸", zone: "中遠程", price: "NT$4,000", basePrice: 4000 },
-  { icon: "🗺️", name: "東吉七美西淺敲底", zone: "離島", price: "NT$4,500–6,500", basePrice: 5500 },
-  { icon: "🦑", name: "澎湖小卷一日", zone: "離島", price: "NT$7,000", basePrice: 7000 },
-  { icon: "🐠", name: "西南花鱸赤鯮馬頭", zone: "中遠程", price: "NT$4,000", basePrice: 4000 },
-  { icon: "📡", name: "海測", zone: "專案", price: "洽詢", basePrice: 0 },
-  { icon: "🌅", name: "看夕陽放空潛水", zone: "休閒", price: "洽詢", basePrice: 0 },
-  { icon: "🎬", name: "影片婚紗拍攝", zone: "專案", price: "洽詢", basePrice: 0 },
+/* 服務項目：後台「服務項目管理」可完整編輯（名稱／icon／區域／價格顯示／開班時段）。
+   slots 為該班別的開班時段快選；留空則沿用該區域的 TIME_PRESETS 預設。 */
+const DEFAULT_SERVICES = [
+  { icon: "🐙", name: "沉船礁大物", zone: "近海", price: "NT$2,500", basePrice: 2500, slots: [] },
+  { icon: "🎣", name: "近海敲底小搞搞", zone: "近海", price: "NT$2,500", basePrice: 2500, slots: [] },
+  { icon: "🐟", name: "近海鐵板遊動丸", zone: "近海", price: "NT$2,500", basePrice: 2500, slots: [] },
+  { icon: "🚤", name: "中遠程鐵板遊動丸", zone: "中遠程", price: "NT$4,000", basePrice: 4000, slots: [] },
+  { icon: "🗺️", name: "東吉七美西淺敲底", zone: "離島", price: "NT$4,500–6,500", basePrice: 5500, slots: [] },
+  { icon: "🦑", name: "澎湖小卷一日", zone: "離島", price: "NT$7,000", basePrice: 7000, slots: [] },
+  { icon: "🐠", name: "西南花鱸赤鯮馬頭", zone: "中遠程", price: "NT$4,000", basePrice: 4000, slots: [] },
+  { icon: "📡", name: "海測", zone: "專案", price: "洽詢", basePrice: 0, slots: [] },
+  { icon: "🌅", name: "看夕陽放空潛水", zone: "休閒", price: "洽詢", basePrice: 0, slots: [] },
+  { icon: "🎬", name: "影片婚紗拍攝", zone: "專案", price: "洽詢", basePrice: 0, slots: [] },
 ];
+let SERVICES = DEFAULT_SERVICES.map((s) => ({ ...s }));
+const applyServicesCfg = (cfg) => {
+  SERVICES = (Array.isArray(cfg) && cfg.length ? cfg : DEFAULT_SERVICES).map((s) => ({ slots: [], ...s }));
+};
+/* 取某服務的開班時段：服務自訂優先，否則沿用區域預設 */
+const slotsForService = (service) => (service && service.slots && service.slots.length ? service.slots : (TIME_PRESETS[service?.zone] || []));
 
 const PRICING = [
   { name: "近海船班", name_en: "Nearshore trips", name_ja: "近海便", price: "NT$2,500", hours: "約 7 小時", hours_en: "~7 hrs", hours_ja: "約7時間", note: "小搞搞／小鐵板／遊動丸／船拋／敲底小搞搞／活餌／沉船礁大物。早班 05:00 集合、12:00 起竿、約 13:00 回港；夜釣（活餌）16:00 集合、23:00 起竿、約 24:00 回港。", note_en: "Light jigging / micro-jig / Yudo / boat casting / bottom / live bait / wreck big game. Morning: muster 05:00, lines up 12:00, port ~13:00; night (live bait): 16:00 / 23:00 / ~24:00.", note_ja: "小物釣り／小型ジグ／遊動丸／キャスティング／底物／活き餌／沈船大物。朝便：5時集合・12時納竿・13時頃帰港；夜釣り（活き餌）：16時集合・23時納竿・24時頃帰港。" },
@@ -94,17 +102,26 @@ const DEFAULT_INVENTORY = [
   { id: "INV-7", cat: "耗材", name: "漁獲標記束帶", qty: 180, unit: "條", low: 50 },
 ];
 
-/* 船班狀態設定：pub=是否對外公開可報名 */
-const TRIP_STATUS = {
-  "歡迎開班": { color: C.teal, tone: "teal", pub: true, bookable: true },
-  "報名中": { color: C.teal, tone: "teal", pub: true, bookable: true },
-  "確定出船": { color: C.navy, tone: "navy", pub: true, bookable: true },
-  "已完成": { color: C.gray, tone: "navy", pub: true, bookable: false },
-  "人數不足取消": { color: C.red, tone: "red", pub: true, bookable: false },
-  "天氣因素取消": { color: C.red, tone: "red", pub: true, bookable: false },
-  "不可抗力因素取消": { color: C.red, tone: "red", pub: true, bookable: false },
+/* 船班狀態設定：pub=是否對外公開可報名；short=行事曆格子上的短標籤（2-4字）
+   後台「狀態選單管理」可自訂；未設定時使用以下預設。 */
+const STATUS_TONE_COLOR = { teal: C.teal, navy: C.navy, orange: C.orange, red: C.red, gray: C.gray };
+const DEFAULT_STATUS_CFG = [
+  { name: "歡迎開班", short: "可跟", tone: "teal", bookable: true },
+  { name: "報名中", short: "報名", tone: "teal", bookable: true },
+  { name: "確定出船", short: "確定", tone: "navy", bookable: true },
+  { name: "已完成", short: "完成", tone: "gray", bookable: false },
+  { name: "人數不足取消", short: "取消", tone: "red", bookable: false },
+  { name: "天氣因素取消", short: "取消", tone: "red", bookable: false },
+  { name: "不可抗力因素取消", short: "取消", tone: "red", bookable: false },
+];
+const cfgToMap = (arr) => Object.fromEntries((arr || []).map((s) => [s.name, { ...s, color: STATUS_TONE_COLOR[s.tone] || C.teal, pub: true }]));
+let TRIP_STATUS = cfgToMap(DEFAULT_STATUS_CFG);
+let STATUS_LIST = Object.keys(TRIP_STATUS);
+const applyStatusCfg = (cfg) => {
+  const arr = Array.isArray(cfg) && cfg.length ? cfg : DEFAULT_STATUS_CFG;
+  TRIP_STATUS = cfgToMap(arr);
+  STATUS_LIST = Object.keys(TRIP_STATUS);
 };
-const STATUS_LIST = Object.keys(TRIP_STATUS);
 
 const WELCOME_MSG_1 = "您好，歡迎來到五賀娛樂漁船＊本船為合法娛樂漁船，已依政府規定取得相關營業執照及保險，並經主管機關核准合法營運。報名出海時，您可使用身分證、健保卡、駕照、護照或居留證辦理登記。＊";
 const WELCOME_MSG_2 = "＊為因應漁業署及海巡署出入港查驗規定，報名時我們會請您提供出海人員資料，提供的資料包含：姓名、生日、身份證字號、地址、聯絡電話及相關資訊以利辦理報關作業。因此，為了讓您未來操作系統便利性，您是否同意提供以上資訊，並且設定您的身份證字號作為固定登入帳號、出生年月日作為固定登入密碼？";
@@ -144,7 +161,7 @@ zh: {
   otInq:"「{s}」為洽詢制服務，費用與細節需與真人確認後開班：", orCall:"或來電 {p}", otNote:"開班後狀態為「歡迎開班」，其他釣友即可跟報；未滿 5 人船長得於前一日取消。", otCreate:"建立船班並成為第一位報名者",
   rfTitle:"裝備租借費用", rfItem:"項目", rfUnit:"單位", rfFee:"費用", rfNote:"※ 備註：以上租借費用不含釣組（仕掛耗材），釣組需另行加購；活餌仕掛不含餌，請自備活餌餌料。", rfOk:"了解，繼續報名",
   backCal:"← 返回船班行事曆", backBottom:"← 返回上一頁（船班行事曆）", perAngler:"／釣手", seatsLeft:"剩餘 {n} 位", fullWait:"已滿・可候補",
-  cardV:"卡片檢視", tableV:"表格檢視", muster:"集合", rodsUp:"起竿", backPort:"回港",
+  cardV:"卡片檢視", tableV:"表格檢視", muster:"集合時間", rodsUp:"預計收竿時間", backPort:"預計到港時間",
   lTargets:"🎯 目標魚", lDepth:"🌊 釣場水深", lGear:"🎣 裝備建議", lRigs:"🧷 建議釣組", lNote:"📌 備註", byInstr:"依現場指示",
   roster:"👥 已報名名單（公開暱稱）", rosterEmpty:"目前尚無人報名，快來當第一位！", minorTag:"・未成年",
   booked:"您已報名此船班 ✅ 可於「我的船班」查看動態與行前提醒", notBookable:"本船班狀態為「{s}」，暫不開放報名。",
@@ -329,7 +346,7 @@ const DEFAULT_REMINDERS = [
   { id: "r7", zh: "以束帶標記自己的漁獲", en: "Tag your catch with a cable tie", ja: "釣果は結束バンドで目印を", types: ["近海", "中遠程", "離島"], liveBaitOnly: false },
 ];
 function seedDb() {
-  return { trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING, reminders: DEFAULT_REMINDERS };
+  return { statusCfg: null, servicesCfg: null, trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING, reminders: DEFAULT_REMINDERS };
 }
 async function loadStore() {
   let localQuest = {};
@@ -340,7 +357,11 @@ async function loadStore() {
       const d = JSON.parse(r.value);
       const base = seedDb();
       const normAnn = (a) => (typeof a === "string" ? { zh: a, en: "", ja: "" } : a);
+      applyStatusCfg(d.statusCfg);
+      applyServicesCfg(d.servicesCfg);
       return {
+        statusCfg: Array.isArray(d.statusCfg) && d.statusCfg.length ? d.statusCfg : null,
+        servicesCfg: Array.isArray(d.servicesCfg) && d.servicesCfg.length ? d.servicesCfg : null,
         trips: (d.trips || base.trips).map((t) => ({ status: "報名中", ...t })),
         orders: [], customers: [], inventory: d.inventory || base.inventory,
         quest: { ...(d.quest || {}), ...localQuest }, announcement: normAnn(d.announcement || base.announcement), rules: d.rules || base.rules,
@@ -758,7 +779,7 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
                 <button key={i} disabled={!trip && !openable} onClick={() => (trip ? onOpen(trip) : openable && onOpenNew(key))}
                   className="aspect-square rounded-lg text-xs font-bold flex flex-col items-center justify-center"
                   style={{ background: trip ? cellColor(trip, rem) : openable ? "#1EA89618" : d ? "#0C2D4808" : "transparent", color: trip ? "#fff" : openable ? C.tealDark : "#0C2D4855", border: openable ? `1px dashed ${C.teal}` : "none" }}>
-                  {d}{trip ? <span style={{ fontSize: 9 }}>{TRIP_STATUS[trip.status]?.bookable ? t("remainS", { n: rem }) : t("cxl")}</span> : openable ? <span style={{ fontSize: 9 }}>{t("canOpen")}</span> : null}
+                  {d}{trip ? <span style={{ fontSize: 9 }}>{(TRIP_STATUS[trip.status] || {}).bookable !== false ? t("remainS", { n: rem }) : ((TRIP_STATUS[trip.status] || {}).short || tSt(trip.status))}</span> : openable ? <span style={{ fontSize: 9 }}>{t("canOpen")}</span> : null}
                 </button>
               );
             })}
@@ -776,7 +797,10 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
           <button key={tp.id} onClick={() => onOpen(tp)} className="w-full text-left rounded-2xl p-4 border-2 transition-transform active:scale-[.99]" style={{ background: "#fff", borderColor: st.bookable ? "#0C2D4815" : `${C.red}55` }}>
             <div className="flex items-center justify-between gap-2">
               <div className="font-black" style={{ color: C.navy }}>{tp.date.slice(5).replace("-", "/")}・{lx(tp, "name")}</div>
-              <Tag tone={st.tone || "teal"}>{tSt(tp.status)}</Tag>
+              <div className="flex flex-wrap gap-1 justify-end">
+                <Tag tone={st.tone || "teal"}>{tSt(tp.status)}</Tag>
+                {(tp.statusExtra || []).map((sN) => <Tag key={sN} tone={(TRIP_STATUS[sN] || {}).tone || "teal"}>{tSt(sN)}</Tag>)}
+              </div>
             </div>
             <div className="text-xs mt-1.5 flex flex-wrap gap-x-3 gap-y-1" style={{ color: "#0C2D4899" }}>
               <span>{t("musterAt", { t: tp.muster })}{tp.timePending ? " ⏳" : ""}</span><span>🎯 {lxArr(tp, "targets").join("、")}</span><span>🌊 {lx(tp, "depth")}</span>
@@ -799,7 +823,7 @@ function OpenTripModal({ presetDate, trips, onCreate, onClose }) {
   const [customTime, setCustomTime] = useState("");
   const [err, setErr] = useState("");
   const service = SERVICES.find((s) => s.name === svc);
-  const presets = service ? (TIME_PRESETS[service.zone] || []) : [];
+  const presets = service ? slotsForService(service) : [];
   const isInquiry = service && service.basePrice === 0;
   const create = () => {
     if (!date || !svc) { setErr(t("otErrSel")); return; }
@@ -1080,6 +1104,7 @@ function TripDetail({ trip, orders, user, rentals, onBook, onClose, onRentalInfo
           </div>
           <div className="flex gap-2 mt-3 flex-wrap items-center">
             <Tag tone={st.tone || "teal"}>{tSt(trip.status)}</Tag>
+            {(trip.statusExtra || []).map((sN) => <Tag key={sN} tone={(TRIP_STATUS[sN] || {}).tone || "teal"}>{tSt(sN)}</Tag>)}
             {trip.timePending && <Tag tone="orange">{t("pendingTag")}</Tag>}
             {st.bookable && <Tag tone={rem === 0 ? "red" : "yellow"}>{rem === 0 ? t("fullWait") : t("seatsLeft", { n: rem })}</Tag>}
             <Tag tone="orange">NT${trip.price.toLocaleString()}{t("perAngler")}</Tag>
@@ -1366,14 +1391,17 @@ const aInput = "p-2.5 rounded-xl text-sm w-full";
 const aStyle = { background: "#F7F3EC12", border: "1px solid #F7F3EC33", color: C.sand };
 
 /* 單一船班完整編輯器（含三語內容） */
-function TripEditor({ trip, orderCount, rentals, onSave, onDelete }) {
+function TripEditor({ trip, orderCount, rentals, onSave, onDelete, onDuplicate }) {
   const [open, setOpen] = useState(false);
+  const [dupOpen, setDupOpen] = useState(false);
+  const [dupDate, setDupDate] = useState("");
   const [eL, setEL] = useState("zh");
   const sfx = eL === "zh" ? "" : "_" + eL;
   const langName = { zh: "中文", en: "English", ja: "日本語" }[eL];
   const join = (a) => (a || []).join("、");
   const [f, setF] = useState({
     ...trip,
+    statusExtra: trip.statusExtra || [],
     links: trip.links || [],
     rentalMode: trip.rentalMode || "auto", rentalNames: trip.rentalNames || [],
     targets: join(trip.targets), rigs: join(trip.rigs),
@@ -1403,15 +1431,32 @@ function TripEditor({ trip, orderCount, rentals, onSave, onDelete }) {
           <div className="text-xs" style={{ color: "#F7F3EC77" }}>{trip.type}｜NT${trip.price.toLocaleString()}｜已報 {orderCount}/{trip.capacity}</div>
         </div>
         <Tag tone={st.tone || "teal"}>{trip.status}</Tag>
+        <button onClick={() => { setDupOpen(!dupOpen); setDupDate(""); }} className="px-3 py-1.5 rounded-xl text-xs font-bold" style={{ background: "#F7F3EC15", color: C.sand, border: `1px solid ${C.teal}` }}>📋 複製</button>
         <button onClick={() => setOpen(!open)} className="px-3 py-1.5 rounded-xl text-xs font-bold" style={{ background: C.orange, color: C.navyDeep }}>{open ? "收合" : "編輯"}</button>
       </div>
+      {dupOpen && (
+        <div className="px-4 pb-3 flex items-center gap-2" style={{ borderTop: "1px solid #F7F3EC1A" }}>
+          <span className="text-xs font-bold pt-3" style={{ color: C.yellow }}>複製到日期：</span>
+          <input type="date" className={aInput + " mt-3"} style={{ ...aStyle, maxWidth: 160 }} value={dupDate} onChange={(e) => setDupDate(e.target.value)} />
+          <div className="pt-3"><Btn small kind="teal" onClick={() => { if (onDuplicate(trip, dupDate)) { setDupOpen(false); setDupDate(""); } }}>確認複製</Btn></div>
+        </div>
+      )}
       {open && (
         <div className="px-4 pb-4 space-y-2" style={{ borderTop: "1px solid #F7F3EC1A" }}>
-          <div className="pt-3 text-xs font-bold" style={{ color: C.yellow }}>船班狀態（前台即時連動）</div>
+          <div className="pt-3 text-xs font-bold" style={{ color: C.yellow }}>主狀態（單選；決定顏色、行事曆標籤與是否可報名）</div>
           <div className="grid grid-cols-2 gap-1.5">
             {STATUS_LIST.map((sN) => (
-              <button key={sN} onClick={() => setF({ ...f, status: sN })} className="py-2 rounded-lg text-xs font-bold" style={{ background: f.status === sN ? (TRIP_STATUS[sN].color) : "#F7F3EC12", color: f.status === sN ? "#fff" : C.sand }}>{sN}</button>
+              <button key={sN} onClick={() => setF({ ...f, status: sN, statusExtra: (f.statusExtra || []).filter((x) => x !== sN) })} className="py-2 rounded-lg text-xs font-bold" style={{ background: f.status === sN ? (TRIP_STATUS[sN].color) : "#F7F3EC12", color: f.status === sN ? "#fff" : C.sand }}>{sN}</button>
             ))}
+          </div>
+          <div className="pt-1 text-xs font-bold" style={{ color: C.yellow }}>附加狀態標籤（可複選；與主狀態一同顯示於前台）</div>
+          <div className="grid grid-cols-2 gap-1.5">
+            {STATUS_LIST.filter((sN) => sN !== f.status).map((sN) => {
+              const on = (f.statusExtra || []).includes(sN);
+              return (
+                <button key={sN} onClick={() => setF({ ...f, statusExtra: on ? f.statusExtra.filter((x) => x !== sN) : [...(f.statusExtra || []), sN] })} className="py-2 rounded-lg text-xs font-bold" style={{ background: on ? "#1EA89633" : "#F7F3EC12", color: on ? "#fff" : C.sand, border: `1px solid ${on ? C.teal : "transparent"}` }}>{on ? "☑ " : "☐ "}{sN}</button>
+              );
+            })}
           </div>
           {f.timePending !== undefined && (
             <button onClick={() => setF({ ...f, timePending: !f.timePending })} className="w-full py-2 rounded-lg text-xs font-bold" style={{ background: f.timePending ? C.orange : C.teal, color: f.timePending ? C.navyDeep : "#fff" }}>
@@ -1424,9 +1469,9 @@ function TripEditor({ trip, orderCount, rentals, onSave, onDelete }) {
             <select className={aInput} style={{ ...aStyle, background: C.navy }} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>{["近海", "中遠程", "離島", "專案", "休閒"].map((tp) => <option key={tp}>{tp}</option>)}</select>
             <input className={aInput} style={aStyle} placeholder="船資" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
             <input className={aInput} style={aStyle} placeholder="乘客上限" value={f.capacity} onChange={(e) => setF({ ...f, capacity: e.target.value })} />
-            <input className={aInput} style={aStyle} placeholder="集合" value={f.muster} onChange={(e) => setF({ ...f, muster: e.target.value })} />
-            <input className={aInput} style={aStyle} placeholder="起竿" value={f.rodsUp} onChange={(e) => setF({ ...f, rodsUp: e.target.value })} />
-            <input className={aInput} style={aStyle} placeholder="回港" value={f.back} onChange={(e) => setF({ ...f, back: e.target.value })} />
+            <input className={aInput} style={aStyle} placeholder="集合時間" value={f.muster} onChange={(e) => setF({ ...f, muster: e.target.value })} />
+            <input className={aInput} style={aStyle} placeholder="預計收竿時間" value={f.rodsUp} onChange={(e) => setF({ ...f, rodsUp: e.target.value })} />
+            <input className={aInput} style={aStyle} placeholder="預計到港時間" value={f.back} onChange={(e) => setF({ ...f, back: e.target.value })} />
           </div>
           <div className="flex items-center gap-2 pt-1">
             <span className="text-xs font-bold" style={{ color: C.yellow }}>🌐 內容語言</span>
@@ -1486,8 +1531,127 @@ function TripEditor({ trip, orderCount, rentals, onSave, onDelete }) {
   );
 }
 
-function AdminTrips({ trips, orders, rentals, setDb }) {
+/* 狀態選單管理：後台自訂船班狀態（名稱／行事曆短標籤／顏色／可否報名） */
+function StatusManager({ db, setDb }) {
+  const [open, setOpen] = useState(false);
+  const [list, setList] = useState(() => (Array.isArray(db.statusCfg) && db.statusCfg.length ? db.statusCfg : DEFAULT_STATUS_CFG).map((s) => ({ ...s, orig: s.name })));
+  const toneNames = { teal: "綠", navy: "藍", orange: "橘", red: "紅", gray: "灰" };
+  const upd = (i, patch) => setList(list.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  const usedBy = (name) => (db.trips || []).filter((tp) => tp.status === name || (tp.statusExtra || []).includes(name)).length;
+  const save = () => {
+    const rows = list.map((s) => ({ ...s, name: (s.name || "").trim(), short: (s.short || "").trim(), tone: s.tone || "teal", bookable: !!s.bookable })).filter((s) => s.name);
+    if (!rows.length) { alert("至少需保留一個狀態"); return; }
+    const names = rows.map((s) => s.name);
+    if (new Set(names).size !== names.length) { alert("狀態名稱不可重複"); return; }
+    /* 舊名→新名（依每列的原始名稱追蹤），讓已套用該狀態的船班自動跟著改名 */
+    const rename = {};
+    rows.forEach((s) => { if (s.orig && s.orig !== s.name) rename[s.orig] = s.name; });
+    const clean = rows.map(({ orig, ...s }) => s);
+    applyStatusCfg(clean);
+    setDb((d) => ({
+      ...d,
+      statusCfg: clean,
+      trips: (d.trips || []).map((tp) => ({
+        ...tp,
+        status: rename[tp.status] || tp.status,
+        statusExtra: (tp.statusExtra || []).map((x) => rename[x] || x).filter((x) => names.includes(x)),
+      })).map((tp) => (names.includes(tp.status) ? tp : { ...tp, status: names[0] })),
+    }));
+    setOpen(false);
+  };
+  if (!open) return <Btn full small kind="ghost" onClick={() => { setList((Array.isArray(db.statusCfg) && db.statusCfg.length ? db.statusCfg : DEFAULT_STATUS_CFG).map((s) => ({ ...s, orig: s.name }))); setOpen(true); }}>⚙️ 狀態選單管理（編輯下拉選單內容）</Btn>;
+  return (
+    <div className="rounded-2xl p-4 space-y-2" style={{ background: "#F7F3EC10", border: `1px solid ${C.teal}` }}>
+      <div className="font-bold text-sm" style={{ color: C.yellow }}>⚙️ 狀態選單管理</div>
+      <p className="text-xs" style={{ color: "#F7F3EC88" }}>「短標籤」顯示於行事曆格子（建議 2–4 字）；「可報名」關閉時前台無法跟報。改名後，已套用該狀態的船班會自動更新。</p>
+      {list.map((s, i) => (
+        <div key={i} className="rounded-xl p-2.5 space-y-1.5" style={{ background: "#0C2D4830", border: "1px solid #F7F3EC1A" }}>
+          <div className="flex gap-2">
+            <input className={aInput} style={aStyle} placeholder="狀態名稱" value={s.name} onChange={(e) => upd(i, { name: e.target.value })} />
+            <input className={aInput} style={{ ...aStyle, maxWidth: 90 }} placeholder="短標籤" value={s.short} onChange={(e) => upd(i, { short: e.target.value })} />
+          </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {Object.keys(STATUS_TONE_COLOR).map((tn) => (
+              <button key={tn} onClick={() => upd(i, { tone: tn })} className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: s.tone === tn ? STATUS_TONE_COLOR[tn] : "#F7F3EC12", color: s.tone === tn ? "#fff" : C.sand }}>{toneNames[tn]}</button>
+            ))}
+            <button onClick={() => upd(i, { bookable: !s.bookable })} className="px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: s.bookable ? C.teal : C.red, color: "#fff" }}>{s.bookable ? "✅ 可報名" : "🚫 不可報名"}</button>
+            <span className="text-xs ml-auto" style={{ color: "#F7F3EC66" }}>使用中 {usedBy(s.name)} 班</span>
+            {usedBy(s.name) === 0 && list.length > 1 && <button onClick={() => setList(list.filter((_, idx) => idx !== i))} className="px-2 py-1 rounded-full text-xs font-bold" style={{ background: "#F7F3EC15", color: C.red }}>刪除</button>}
+          </div>
+        </div>
+      ))}
+      <Btn full small kind="ghost" onClick={() => setList([...list, { name: "", short: "", tone: "teal", bookable: true }])}>＋ 新增狀態</Btn>
+      <div className="flex gap-2"><Btn full small kind="teal" onClick={save}>儲存狀態設定</Btn><Btn small kind="ghost" onClick={() => setOpen(false)}>取消</Btn></div>
+    </div>
+  );
+}
+
+/* 服務項目管理：後台完整編輯服務（含每個班別的開班時段） */
+function ServicesManager({ db, setDb }) {
+  const [open, setOpen] = useState(false);
+  const initList = () => (Array.isArray(db.servicesCfg) && db.servicesCfg.length ? db.servicesCfg : DEFAULT_SERVICES).map((s) => ({ slots: [], ...s, slots: (s.slots || []).map((x) => ({ ...x })) }));
+  const [list, setList] = useState(initList);
+  const upd = (i, patch) => setList(list.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+  const updSlot = (i, j, patch) => setList(list.map((s, idx) => (idx === i ? { ...s, slots: s.slots.map((x, jdx) => (jdx === j ? { ...x, ...patch } : x)) } : s)));
+  const save = () => {
+    const clean = list.map((s) => ({
+      icon: (s.icon || "🎣").trim(), name: (s.name || "").trim(), zone: s.zone || "近海",
+      price: (s.price || "").trim() || "洽詢", basePrice: Number(s.basePrice) || 0,
+      slots: (s.slots || []).map((x) => ({ muster: (x.muster || "").trim(), rodsUp: (x.rodsUp || "").trim() || "—", back: (x.back || "").trim() || "—" })).filter((x) => x.muster),
+    })).filter((s) => s.name);
+    if (!clean.length) { alert("至少需保留一個服務項目"); return; }
+    const names = clean.map((s) => s.name);
+    if (new Set(names).size !== names.length) { alert("服務名稱不可重複"); return; }
+    applyServicesCfg(clean);
+    setDb((d) => ({ ...d, servicesCfg: clean }));
+    setOpen(false);
+  };
+  if (!open) return <Btn full small kind="ghost" onClick={() => { setList(initList()); setOpen(true); }}>🛎️ 服務項目管理（編輯班別資訊與開班時段）</Btn>;
+  return (
+    <div className="rounded-2xl p-4 space-y-2" style={{ background: "#F7F3EC10", border: `1px solid ${C.orange}` }}>
+      <div className="font-bold text-sm" style={{ color: C.yellow }}>🛎️ 服務項目管理</div>
+      <p className="text-xs" style={{ color: "#F7F3EC88" }}>此處內容連動：前台「服務」頁、開班選單與各班別的出發時段快選。時段留空時，沿用該區域預設（近海早班／夜釣等）。基準價 0 = 洽詢制（不可直接開班）。</p>
+      {list.map((s, i) => (
+        <div key={i} className="rounded-xl p-2.5 space-y-1.5" style={{ background: "#0C2D4830", border: "1px solid #F7F3EC1A" }}>
+          <div className="flex gap-2">
+            <input className={aInput} style={{ ...aStyle, maxWidth: 56, textAlign: "center" }} placeholder="🎣" value={s.icon} onChange={(e) => upd(i, { icon: e.target.value })} />
+            <input className={aInput} style={aStyle} placeholder="服務名稱" value={s.name} onChange={(e) => upd(i, { name: e.target.value })} />
+          </div>
+          <div className="flex gap-2">
+            <select className={aInput} style={{ ...aStyle, background: C.navy }} value={s.zone} onChange={(e) => upd(i, { zone: e.target.value })}>{["近海", "中遠程", "離島", "專案", "休閒"].map((z) => <option key={z}>{z}</option>)}</select>
+            <input className={aInput} style={aStyle} placeholder="顯示價格（例 NT$2,500）" value={s.price} onChange={(e) => upd(i, { price: e.target.value })} />
+            <input className={aInput} style={{ ...aStyle, maxWidth: 90 }} placeholder="基準價" value={s.basePrice} onChange={(e) => upd(i, { basePrice: e.target.value })} />
+          </div>
+          <div className="text-xs font-bold pt-0.5" style={{ color: C.yellow }}>出發時段（此班別開班時可選；留空＝沿用區域預設）</div>
+          {(s.slots || []).map((x, j) => (
+            <div key={j} className="flex gap-1.5 items-center">
+              <input className={aInput} style={aStyle} placeholder="集合時間 13:00" value={x.muster} onChange={(e) => updSlot(i, j, { muster: e.target.value })} />
+              <input className={aInput} style={aStyle} placeholder="預計收竿時間 20:00" value={x.rodsUp} onChange={(e) => updSlot(i, j, { rodsUp: e.target.value })} />
+              <input className={aInput} style={aStyle} placeholder="預計到港時間 約 21:00" value={x.back} onChange={(e) => updSlot(i, j, { back: e.target.value })} />
+              <button onClick={() => upd(i, { slots: s.slots.filter((_, jdx) => jdx !== j) })} className="px-2 py-1 rounded-full text-xs font-bold" style={{ background: "#F7F3EC15", color: C.red }}>✕</button>
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <Btn small kind="ghost" onClick={() => upd(i, { slots: [...(s.slots || []), { muster: "", rodsUp: "", back: "" }] })}>＋ 時段</Btn>
+            <div className="ml-auto"><button onClick={() => setList(list.filter((_, idx) => idx !== i))} className="px-3 py-1.5 rounded-xl text-xs font-bold" style={{ background: "#F7F3EC15", color: C.red }}>刪除此服務</button></div>
+          </div>
+        </div>
+      ))}
+      <Btn full small kind="ghost" onClick={() => setList([...list, { icon: "🎣", name: "", zone: "近海", price: "", basePrice: 0, slots: [] }])}>＋ 新增服務項目</Btn>
+      <div className="flex gap-2"><Btn full small kind="teal" onClick={save}>儲存服務設定</Btn><Btn small kind="ghost" onClick={() => setOpen(false)}>取消</Btn></div>
+    </div>
+  );
+}
+
+function AdminTrips({ trips, orders, rentals, setDb, db }) {
   const [f, setF] = useState({ date: "", name: "", type: "近海", price: "", muster: "", depth: "", targets: "" });
+  const dupTrip = (t0, nd) => {
+    if (!nd || !/^\d{4}-\d{2}-\d{2}$/.test(nd)) { alert("請先選擇要複製到的日期"); return false; }
+    if (trips.some((x) => x.date === nd)) { alert("該日期已有船班（一日一班），請選其他日期"); return false; }
+    const copy = { ...t0, id: "T" + Date.now(), date: nd, status: "報名中", statusExtra: [] };
+    setDb((d) => ({ ...d, trips: [...d.trips, copy].sort((a, b) => a.date.localeCompare(b.date)) }));
+    return true;
+  };
   const add = () => {
     if (!f.date || !f.name || !f.price) return;
     const t = { id: "T" + Date.now(), date: f.date, name: f.name, type: f.type, price: Number(f.price), muster: f.muster || "05:00", rodsUp: "—", back: "—", capacity: 10, targets: f.targets ? f.targets.split(/[、,，\s]+/).filter(Boolean) : ["洽船長"], depth: f.depth || "—", gear: "洽船長建議", rigs: [], note: "", status: "報名中" };
@@ -1498,6 +1662,8 @@ function AdminTrips({ trips, orders, rentals, setDb }) {
   const delTrip = (id) => setDb((d) => ({ ...d, trips: d.trips.filter((t) => t.id !== id) }));
   return (
     <div className="space-y-3">
+      <StatusManager db={db} setDb={setDb} />
+      <ServicesManager db={db} setDb={setDb} />
       <div className="rounded-2xl p-4 space-y-2" style={{ background: "#F7F3EC10", border: "1px solid #F7F3EC22" }}>
         <div className="font-bold text-sm" style={{ color: C.yellow }}>＋ 開新船班</div>
         <div className="grid grid-cols-2 gap-2">
@@ -1505,13 +1671,13 @@ function AdminTrips({ trips, orders, rentals, setDb }) {
           <input className={aInput} style={aStyle} placeholder="船班名稱" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
           <select className={aInput} style={{ ...aStyle, background: C.navy }} value={f.type} onChange={(e) => setF({ ...f, type: e.target.value })}>{["近海", "中遠程", "離島", "專案"].map((t) => <option key={t}>{t}</option>)}</select>
           <input className={aInput} style={aStyle} placeholder="船資（數字）" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} />
-          <input className={aInput} style={aStyle} placeholder="集合 05:00" value={f.muster} onChange={(e) => setF({ ...f, muster: e.target.value })} />
+          <input className={aInput} style={aStyle} placeholder="集合時間 05:00" value={f.muster} onChange={(e) => setF({ ...f, muster: e.target.value })} />
           <input className={aInput} style={aStyle} placeholder="水深 20–40 m" value={f.depth} onChange={(e) => setF({ ...f, depth: e.target.value })} />
         </div>
         <input className={aInput} style={aStyle} placeholder="目標魚（頓號分隔）" value={f.targets} onChange={(e) => setF({ ...f, targets: e.target.value })} />
         <Btn full small onClick={add}>建立船班</Btn>
       </div>
-      {trips.map((t) => <TripEditor key={t.id} trip={t} orderCount={orders.filter((o) => o.tripId === t.id).length} rentals={rentals} onSave={saveTrip} onDelete={delTrip} />)}
+      {trips.map((t) => <TripEditor key={t.id} trip={t} orderCount={orders.filter((o) => o.tripId === t.id).length} rentals={rentals} onSave={saveTrip} onDelete={delTrip} onDuplicate={dupTrip} />)}
     </div>
   );
 }
@@ -2093,7 +2259,7 @@ function AdminPortal({ db, setDb, onExit }) {
           </div>
         )}
 
-        {tab === "trips" && <AdminTrips trips={trips} orders={activeOrders} rentals={db.rentals} setDb={setDb} />}
+        {tab === "trips" && <AdminTrips trips={trips} orders={activeOrders} rentals={db.rentals} setDb={setDb} db={db} />}
         {tab === "customers" && <AdminCustomers customers={customers} orders={orders} setDb={setDb} />}
         {tab === "content" && <AdminContent db={db} setDb={setDb} ping={aPing} />}
         {tab === "remind" && <AdminReminders db={db} setDb={setDb} aPing={aPing} />}
