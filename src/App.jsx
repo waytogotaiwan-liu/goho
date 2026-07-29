@@ -117,6 +117,14 @@ const DEFAULT_STATUS_CFG = [
 const cfgToMap = (arr) => Object.fromEntries((arr || []).map((s) => [s.name, { ...s, color: STATUS_TONE_COLOR[s.tone] || C.teal, pub: true }]));
 let TRIP_STATUS = cfgToMap(DEFAULT_STATUS_CFG);
 let STATUS_LIST = Object.keys(TRIP_STATUS);
+/* 日期時間顯示（本地時間 YYYY-MM-DD HH:mm） */
+const fmtDT = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (isNaN(d)) return String(iso).slice(0, 16).replace("T", " ");
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+};
 const applyStatusCfg = (cfg) => {
   const arr = Array.isArray(cfg) && cfg.length ? cfg : DEFAULT_STATUS_CFG;
   TRIP_STATUS = cfgToMap(arr);
@@ -147,13 +155,13 @@ zh: {
   minorContactNote:"我們會主動與您聯絡協助未成年人報名。您也可直接聯繫 LINE 小秘書。",
   docNote:"出海當天請攜帶所有出海人員的證件正本供海巡查驗。", submitReg:"送出資料並登入",
   phLoginId:"帳號（證號）", phLoginPw:"密碼（民國出生年月日，例：80-05-12）", login:"登入",
-  errRequired:"除暱稱外，所有欄位皆為必填。", errDup:"此證號已註冊，請改用「登入」。", errLogin:"帳號或密碼錯誤（帳號＝證號，密碼＝民國出生年月日）。", errMinorSel:"請選擇同行是否有未滿 18 歲的未成年人。", errMinorMode:"請選擇未成年人的處理方式。", errMinorFields:"請完整填寫每位未成年人的資料。",
+  errRequired:"除暱稱外，所有欄位皆為必填。", errDup:"您已有註冊，請輸入您的證號與民國出生年月日進行登入", errLogin:"帳號或密碼錯誤（帳號＝證號，密碼＝民國出生年月日）。", errMinorSel:"請選擇同行是否有未滿 18 歲的未成年人。", errMinorMode:"請選擇未成年人的處理方式。", errMinorFields:"請完整填寫每位未成年人的資料。",
   annTitle:"最新公告", annOk:"我知道了，開始導引 →",
   q_announce:"看過最新公告", qh_announce:"了解本月船長推薦班別", q_rules:"讀懂報班規定", qh_rules:"前往「規定」看完 8 條規定", q_fees:"認識費用與租借", qh_fees:"前往「費用」了解船資與裝備", q_calendar:"查一次船班行事曆", qh_calendar:"前往「船班」點開任一船班", q_book:"完成第一次報名", qh_book:"在船班詳情按下「我要報名」",
   rank0:"五賀新手", rank1:"見習船員", rank2:"合格釣手", rank3:"五賀老手",
   nextRank:"再 {n} XP 升級為「{r}」", maxRank:"已達最高階級！", taskN:"任務 {i}｜", doneLbl:"已完成", nextStep:"← 下一步", nextStepB:"下一步", questFooter:"完成全部任務即代表您已了解報班流程，可安心出海 ⚓",
   calTitle:"{y} 年 {m} 月船班", listV:"清單", monthV:"月曆", openTripBtn:"＋ 我要開班（依服務項目在空班日期開班）",
-  lgAvail:"名額充足", lgFew:"即將額滿", lgFull:"已滿／取消", lgOpen:"▢ 空班可開", canOpen:"可開", cxl:"取消", remainS:"餘{n}",
+  lgAvail:"名額充足", lgFew:"即將額滿", lgFull:"已滿／取消", lgOpen:"▢ 空班可開", canOpen:"可開", cxl:"取消", remainS:"餘{n}", nTrips:"{n}班", pickTrip:"本日有多個候選船班，請選擇要報名的班別（最終以「確定出船」的班別出海）",
   musterAt:"⏰ {t} 集合", remain:"剩 {n} 位", waitlist:"候補中",
   otTitle:"我要開班", otSub:"依規定：釣友可自行發起船班", otDate:"出發日期（限 24 小時以後）", otSvc:"服務項目",
   otErrSel:"請選擇日期與服務項目。", otErr24:"出發前 24 小時內不開放開班，請改選較晚的日期。", otErrDup:"該日期已有船班，請直接報名或改選其他日期。",
@@ -200,13 +208,13 @@ en: {
   minorContactNote:"We'll reach out to help register minors. You can also message our LINE assistant directly.",
   docNote:"Bring original ID documents for all passengers for Coast Guard inspection on departure day.", submitReg:"Submit & log in",
   phLoginId:"Account (ID number)", phLoginPw:"Password (ROC birthdate, e.g. 80-05-12)", login:"Log in",
-  errRequired:"All fields except nickname are required.", errDup:"This ID is already registered — please log in instead.", errLogin:"Wrong account or password (account = ID, password = ROC birthdate).", errMinorSel:"Please indicate whether minors are joining.", errMinorMode:"Please choose how to handle minor registration.", errMinorFields:"Please complete every minor's details.",
+  errRequired:"All fields except nickname are required.", errDup:"You are already registered — please log in with your ID number and ROC birthdate.", errLogin:"Wrong account or password (account = ID, password = ROC birthdate).", errMinorSel:"Please indicate whether minors are joining.", errMinorMode:"Please choose how to handle minor registration.", errMinorFields:"Please complete every minor's details.",
   annTitle:"Announcements", annOk:"Got it — start the guide →",
   q_announce:"Read the latest news", qh_announce:"See this month's recommended trips", q_rules:"Learn the booking rules", qh_rules:"Read all 8 rules in \u201cRules\u201d", q_fees:"Know fees & rentals", qh_fees:"Check fares and gear in \u201cFees\u201d", q_calendar:"Browse the trip calendar", qh_calendar:"Open any trip in \u201cTrips\u201d", q_book:"Make your first booking", qh_book:"Tap \u201cBook now\u201d in a trip",
   rank0:"GOHO Rookie", rank1:"Deckhand", rank2:"Qualified Angler", rank3:"GOHO Veteran",
   nextRank:"{n} XP to reach \u201c{r}\u201d", maxRank:"Max rank reached!", taskN:"Quest {i} | ", doneLbl:"Done", nextStep:"← Next", nextStepB:"Next", questFooter:"Finish all quests and you're ready to set sail ⚓",
   calTitle:"Trips · {y}/{m}", listV:"List", monthV:"Month", openTripBtn:"+ Start a trip (pick a service on an open date)",
-  lgAvail:"Available", lgFew:"Almost full", lgFull:"Full / cancelled", lgOpen:"▢ Open date", canOpen:"Open", cxl:"CXL", remainS:"{n} left",
+  lgAvail:"Available", lgFew:"Almost full", lgFull:"Full / cancelled", lgOpen:"▢ Open date", canOpen:"Open", cxl:"CXL", remainS:"{n} left", nTrips:"{n} trips", pickTrip:"Multiple candidate trips on this day — pick one to register (the trip marked Confirmed will sail)",
   musterAt:"⏰ Muster {t}", remain:"{n} left", waitlist:"Waitlist",
   otTitle:"Start a Trip", otSub:"Anglers may initiate trips per our rules", otDate:"Departure date (24 h+ ahead only)", otSvc:"Service",
   otErrSel:"Please choose a date and a service.", otErr24:"Trips can't be started within 24 h of departure — pick a later date.", otErrDup:"A trip already exists that day — join it or pick another date.",
@@ -253,13 +261,13 @@ ja: {
   minorContactNote:"未成年の方のご登録はこちらからご連絡してサポートします。公式LINEへ直接ご連絡も可能です。",
   docNote:"出港当日は全乗船者の証明書原本をご持参ください（海巡署の検査があります）。", submitReg:"送信してログイン",
   phLoginId:"ID（証明書番号）", phLoginPw:"パスワード（民国暦生年月日、例：80-05-12）", login:"ログイン",
-  errRequired:"ニックネーム以外はすべて必須です。", errDup:"この番号は登録済みです。ログインをご利用ください。", errLogin:"IDまたはパスワードが違います（ID＝証明書番号、パスワード＝民国暦生年月日）。", errMinorSel:"未成年同行の有無を選択してください。", errMinorMode:"未成年の登録方法を選択してください。", errMinorFields:"未成年全員の情報を入力してください。",
+  errRequired:"ニックネーム以外はすべて必須です。", errDup:"すでに登録済みです。証明書番号と民国暦の生年月日でログインしてください。", errLogin:"IDまたはパスワードが違います（ID＝証明書番号、パスワード＝民国暦生年月日）。", errMinorSel:"未成年同行の有無を選択してください。", errMinorMode:"未成年の登録方法を選択してください。", errMinorFields:"未成年全員の情報を入力してください。",
   annTitle:"最新のお知らせ", annOk:"了解、ガイドを始める →",
   q_announce:"最新のお知らせを見る", qh_announce:"今月のおすすめ便をチェック", q_rules:"予約ルールを読む", qh_rules:"「規定」で8つのルールを確認", q_fees:"料金とレンタルを知る", qh_fees:"「料金」で船代と装備を確認", q_calendar:"便カレンダーを見る", qh_calendar:"「便」でどれか1つ開く", q_book:"初めての予約をする", qh_book:"便詳細で「予約する」をタップ",
   rank0:"五賀ビギナー", rank1:"見習い船員", rank2:"一人前の釣り師", rank3:"五賀ベテラン",
   nextRank:"あと {n} XP で「{r}」に昇格", maxRank:"最高ランク達成！", taskN:"クエスト {i}｜", doneLbl:"完了", nextStep:"← 次へ", nextStepB:"次へ", questFooter:"全クエスト完了＝予約の流れはバッチリ、安心して出港できます ⚓",
   calTitle:"{y}年{m}月の便", listV:"リスト", monthV:"カレンダー", openTripBtn:"＋ 便を立てる（空き日にサービスを選んで開催）",
-  lgAvail:"空きあり", lgFew:"残りわずか", lgFull:"満席／中止", lgOpen:"▢ 開催可能", canOpen:"開催可", cxl:"中止", remainS:"残{n}",
+  lgAvail:"空きあり", lgFew:"残りわずか", lgFull:"満席／中止", lgOpen:"▢ 開催可能", canOpen:"開催可", cxl:"中止", remainS:"残{n}", nTrips:"{n}便", pickTrip:"この日は複数の候補便があります。ご希望の便を選択してください（「出船確定」の便が出航します）",
   musterAt:"⏰ {t} 集合", remain:"残り {n} 名", waitlist:"キャンセル待ち",
   otTitle:"便を立てる", otSub:"規定により釣り客が便を発起できます", otDate:"出発日（24時間以降のみ）", otSvc:"サービス",
   otErrSel:"日付とサービスを選択してください。", otErr24:"出発24時間前を切った開催はできません。別の日をお選びください。", otErrDup:"その日はすでに便があります。参加するか別の日をお選びください。",
@@ -596,7 +604,15 @@ function RegisterModal({ onRegister, onLogin, onAdmin }) {
             <input className={inputCls} style={inputStyle} placeholder={t("phName")} value={f.name} onChange={set("name")} />
             <select className={inputCls} style={inputStyle} value={f.gender} onChange={set("gender")}><option value="">{t("phGender")}</option><option value="男">{t("male")}</option><option value="女">{t("female")}</option></select>
             <input className={inputCls} style={inputStyle} placeholder={t("phBirth")} value={f.birth} onChange={set("birth")} />
-            <input className={inputCls} style={inputStyle} placeholder={t("phId")} value={f.idno} onChange={set("idno")} />
+            <input className={inputCls} style={inputStyle} placeholder={t("phId")} value={f.idno} onChange={set("idno")}
+              onBlur={async () => {
+                const v = (f.idno || "").trim();
+                if (v.length < 6) return;
+                try {
+                  const r = await api.checkId(v);
+                  if (r?.exists) { setErr(t("errDup")); setLogin({ idno: v, birth: "" }); setMode("login"); }
+                } catch (e) { /* 查詢失敗時安靜略過，送出時仍有伺服器端查重把關 */ }
+              }} />
             <input className={inputCls} style={inputStyle} placeholder={t("phAddr")} value={f.address} onChange={set("address")} />
             <input className={inputCls} style={inputStyle} placeholder={t("phPhone")} value={f.phone} onChange={set("phone")} />
 
@@ -734,13 +750,16 @@ function hoursUntil(dateStr) { return (new Date(dateStr + "T00:00:00").getTime()
 
 function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
   const [view, setView] = useState("month"); /* 預設顯示月曆檢視 */
+  const [dayPick, setDayPick] = useState(null); /* 多班同日：點日期後的選班視窗 */
   const now = new Date();
   const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() }); // m: 0-11
   const shiftMonth = (d) => setYm(({ y, m }) => { const nm = m + d; return { y: y + Math.floor(nm / 12), m: ((nm % 12) + 12) % 12 }; });
   const days = ["日", "一", "二", "三", "四", "五", "六"];
   const first = new Date(ym.y, ym.m, 1).getDay();
   const daysInMonth = new Date(ym.y, ym.m + 1, 0).getDate();
-  const byDate = Object.fromEntries(trips.map((t) => [t.date, t]));
+  /* 同一日期可有多個候選船班（多選一出船）：byDate 改為陣列 */
+  const byDate = {};
+  trips.forEach((t) => { (byDate[t.date] = byDate[t.date] || []).push(t); });
   const cells = [...Array(first).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
   const cellColor = (trip, rem) => {
     const st = TRIP_STATUS[trip.status] || {};
@@ -777,20 +796,58 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
             {cells.map((d, i) => {
               const key = d ? `${ym.y}-${String(ym.m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}` : null;
               /* 過去日期不顯示船班資訊（以客戶裝置當天為準；當天仍顯示） */
-              const trip = key && key >= todayStr ? byDate[key] : null;
+              const dayTrips = (key && key >= todayStr ? byDate[key] : null) || [];
+              const trip = dayTrips.length === 1 ? dayTrips[0] : null;
               const rem = trip ? remainOf(trip, orders) : 0;
-              const openable = key && !trip && hoursUntil(key) >= 24;
+              const openable = key && dayTrips.length === 0 && hoursUntil(key) >= 24;
+              /* 多班同日：以可報名班的總剩餘名額決定顏色；全不可報名則取第一班的顏色 */
+              const multi = dayTrips.length > 1;
+              const bs = multi ? dayTrips.filter((tp) => (TRIP_STATUS[tp.status] || {}).bookable !== false) : [];
+              const totRem = bs.reduce((a, tp) => a + remainOf(tp, orders), 0);
+              const multiColor = multi ? (bs.length ? (totRem === 0 ? C.red : totRem <= 3 ? C.orange : C.teal) : ((TRIP_STATUS[dayTrips[0].status] || {}).color || C.gray)) : null;
+              const bg = trip ? cellColor(trip, rem) : multi ? multiColor : openable ? "#1EA89618" : d ? "#0C2D4808" : "transparent";
               return (
-                <button key={i} disabled={!trip && !openable} onClick={() => (trip ? onOpen(trip) : openable && onOpenNew(key))}
+                <button key={i} disabled={!trip && !multi && !openable} onClick={() => (trip ? onOpen(trip) : multi ? setDayPick(key) : openable && onOpenNew(key))}
                   className="aspect-square rounded-lg text-xs font-bold flex flex-col items-center justify-center"
-                  style={{ background: trip ? cellColor(trip, rem) : openable ? "#1EA89618" : d ? "#0C2D4808" : "transparent", color: trip ? "#fff" : openable ? C.tealDark : "#0C2D4855", border: openable ? `1px dashed ${C.teal}` : "none" }}>
-                  {d}{trip ? <span style={{ fontSize: 9 }}>{(TRIP_STATUS[trip.status] || {}).bookable !== false ? t("remainS", { n: rem }) : ((TRIP_STATUS[trip.status] || {}).short || tSt(trip.status))}</span> : openable ? <span style={{ fontSize: 9 }}>{t("canOpen")}</span> : null}
+                  style={{ background: bg, color: trip || multi ? "#fff" : openable ? C.tealDark : "#0C2D4855", border: openable ? `1px dashed ${C.teal}` : "none" }}>
+                  {d}{trip ? <span style={{ fontSize: 9 }}>{(TRIP_STATUS[trip.status] || {}).bookable !== false ? t("remainS", { n: rem }) : ((TRIP_STATUS[trip.status] || {}).short || tSt(trip.status))}</span> : multi ? <span style={{ fontSize: 9 }}>{t("nTrips", { n: dayTrips.length })}</span> : openable ? <span style={{ fontSize: 9 }}>{t("canOpen")}</span> : null}
                 </button>
               );
             })}
           </div>
           <div className="flex flex-wrap gap-2 mt-2 text-xs justify-center" style={{ color: "#0C2D4899" }}>
             <span><span style={{ color: C.teal }}>●</span> {t("lgAvail")}</span><span><span style={{ color: C.orange }}>●</span> {t("lgFew")}</span><span><span style={{ color: C.red }}>●</span> {t("lgFull")}</span><span style={{ color: C.tealDark }}>{t("lgOpen")}</span>
+          </div>
+        </div>
+      )}
+
+      {dayPick && (byDate[dayPick] || []).length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "#0C2D48CC" }} onClick={() => setDayPick(null)}>
+          <div className="w-full max-w-lg rounded-t-3xl p-4 space-y-2" style={{ background: C.sand, maxHeight: "75vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div className="font-black" style={{ color: C.navy }}>{dayPick.slice(5).replace("-", "/")}</div>
+              <button onClick={() => setDayPick(null)} className="text-2xl leading-none px-2" style={{ color: C.navy }}>×</button>
+            </div>
+            <p className="text-xs" style={{ color: "#0C2D4899" }}>{t("pickTrip")}</p>
+            {(byDate[dayPick] || []).map((tp) => {
+              const rem = remainOf(tp, orders);
+              const st = TRIP_STATUS[tp.status] || {};
+              return (
+                <button key={tp.id} onClick={() => { setDayPick(null); onOpen(tp); }} className="w-full rounded-2xl p-3 text-left" style={{ background: "#fff", border: "2px solid #0C2D4815" }}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-black text-sm" style={{ color: C.navy }}>{lx(tp, "name")}</div>
+                    <div className="flex flex-wrap gap-1 justify-end">
+                      <Tag tone={st.tone || "teal"}>{tSt(tp.status)}</Tag>
+                      {(tp.statusExtra || []).map((sN) => <Tag key={sN} tone={(TRIP_STATUS[sN] || {}).tone || "teal"}>{tSt(sN)}</Tag>)}
+                    </div>
+                  </div>
+                  <div className="text-xs mt-1 flex flex-wrap gap-x-3" style={{ color: "#0C2D4899" }}>
+                    <span>⏰ {tp.muster}</span><span>NT${tp.price.toLocaleString()}</span>
+                    {st.bookable !== false && <span style={{ color: rem === 0 ? C.red : C.tealDark }}>{rem === 0 ? t("fullWait") : t("seatsLeft", { n: rem })}</span>}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -947,33 +1004,57 @@ function RentalFeeModal({ rentals, trip, onClose }) {
 
 /* 裝備建議智慧排版：管理員照「項目：內容」逐行輸入，前台自動解析為分類手風琴＋對照表
    規則：行尾為「：」→分類標題；emoji 開頭→分類標題；「標籤：內容」且標籤≤12字→對照列；其餘→補充說明 */
+/* 裝備／釣組文字解析：
+   「一、二、…」→ 大節（各自成卡）
+   「1. / 2.」或「◯◯：」（冒號結尾）→ 小節標題
+   「項目：內容」→ 表格列；其餘為備註 */
 function parseGear(text) {
   const lines = String(text || "").split(/\n/).map((l) => l.trim()).filter(Boolean);
   const sections = [];
   let cur = null;
-  const push = () => { if (cur && (cur.rows.length || cur.notes.length)) sections.push(cur); };
+  const push = () => { if (cur && cur.items.length) sections.push(cur); };
+  const newSec = (title) => { push(); cur = { title: title.replace(/[：:]\s*$/, ""), items: [] }; };
   const isEmojiStart = (l) => /^[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u.test(l);
+  const isCnNum = (l) => /^[一二三四五六七八九十]+\s*[、.．]/.test(l);
+  const isSubNum = (l) => /^\d+\s*[.、．)）]/.test(l);
   for (const line of lines) {
     const m = line.match(/^(.{1,30}?)[：:](.*)$/);
     const label = m ? m[1].trim() : null;
     const value = m ? m[2].trim() : null;
-    if ((m && !value) || isEmojiStart(line) || (!m && line.length <= 22 && !cur)) {
-      push(); cur = { title: line.replace(/[：:]\s*$/, ""), rows: [], notes: [] };
-    } else if (m && label.length <= 12) {
-      if (!cur) cur = { title: "", rows: [], notes: [] };
-      cur.rows.push([label, value]);
-    } else {
-      if (!cur) cur = { title: "", rows: [], notes: [] };
-      cur.notes.push(line);
-    }
+    if (isCnNum(line)) { newSec(line); continue; }
+    if (isEmojiStart(line)) { newSec(line); continue; }
+    if (!m && line.length <= 22 && !cur) { newSec(line); continue; }
+    if (!cur) cur = { title: "", items: [] };
+    if (isSubNum(line) && (!m || !value)) { cur.items.push({ t: "sub", x: line.replace(/[：:]\s*$/, "") }); continue; }
+    if (m && !value) { cur.items.push({ t: "sub", x: label }); continue; }
+    if (m && label.length <= 12) { cur.items.push({ t: "row", k: label, v: value }); continue; }
+    cur.items.push({ t: "note", x: line });
   }
   push();
   return sections;
 }
 function GearBlock({ text, rigs, links }) {
   const sections = parseGear(text);
-  if (rigs && rigs.length) sections.push({ title: t("lRigs"), rows: [], notes: rigs });
-  const structured = sections.length > 1 || (sections[0] && sections[0].rows.length >= 2);
+  /* 建議釣組結構化：
+     「◯◯釣法：」（冒號結尾）→ 建立分組標題
+     「項目：內容」→ 表格列；「名稱 NT$價格」→ 名稱｜價格 表格列；其餘為備註 */
+  if (rigs && rigs.length) {
+    let cur = { title: t("lRigs"), items: [] };
+    const rOut = [cur];
+    rigs.forEach((r) => {
+      const line = String(r).trim();
+      if (!line) return;
+      const hdr = line.match(/^(.+?)[：:]\s*$/);
+      if (hdr) { cur = { title: "🧷 " + hdr[1].trim(), items: [] }; rOut.push(cur); return; }
+      const kv = line.match(/^(.{1,12}?)[：:](.+)$/);
+      if (kv) { cur.items.push({ t: "row", k: kv[1].trim(), v: kv[2].trim() }); return; }
+      const pm = line.match(/^(.*?)\s*(NT\$\s?[\d,]+(?:.*)?)$/);
+      if (pm && pm[1].trim()) { cur.items.push({ t: "row", k: pm[1].trim(), v: pm[2].trim() }); return; }
+      cur.items.push({ t: "note", x: line });
+    });
+    rOut.filter((sec) => sec.items.length).forEach((sec) => sections.push(sec));
+  }
+  const structured = sections.length > 1 || (sections[0] && sections[0].items.filter((it) => it.t === "row").length >= 2);
   const [mode, setMode] = useState("acc"); // acc 摺疊 | tab 分頁 | grid 總覽
   const [tabIdx, setTabIdx] = useState(0);
   const LinkBtns = () => (links && links.length ? (
@@ -987,29 +1068,44 @@ function GearBlock({ text, rigs, links }) {
   ) : null);
   if (!structured) return <div><div className="text-base font-bold leading-relaxed" style={{ color: C.navy }}>{text || "—"}</div><LinkBtns /></div>;
 
-  const Rows = ({ sec, compact }) => (
-    <>
-      {sec.rows.length > 0 && (
-        <div className="rounded-lg overflow-hidden" style={{ border: "1px solid #0C2D4812" }}>
-          {sec.rows.map(([k, v], j) => (
-            <div key={j} className={compact ? "text-xs" : "grid grid-cols-3 text-xs"} style={{ background: j % 2 ? "#fff" : "#FBFAF7" }}>
-              {compact ? (
-                <div className="p-1.5 leading-relaxed"><span className="font-bold" style={{ color: C.tealDark }}>{k}</span><span className="font-bold" style={{ color: C.navy }}>｜{v}</span></div>
-              ) : (
-                <>
-                  <div className="p-2 font-bold" style={{ color: C.tealDark, background: "#0C2D4806" }}>{k}</div>
-                  <div className="col-span-2 p-2 font-bold leading-relaxed" style={{ color: C.navy }}>{v}</div>
-                </>
-              )}
+  /* 小節標題＋表格列＋備註 依原始順序渲染；連續表格列合併為一張斑馬紋表 */
+  const Items = ({ sec, compact }) => {
+    const groups = [];
+    (sec.items || []).forEach((it) => {
+      if (it.t === "row") {
+        const last = groups[groups.length - 1];
+        if (last && last.t === "rows") last.list.push(it); else groups.push({ t: "rows", list: [it] });
+      } else groups.push(it);
+    });
+    return (
+      <>
+        {groups.map((g, gi) => {
+          if (g.t === "sub") return (
+            <div key={gi} className="text-xs font-black mt-2.5 mb-1 pl-2" style={{ color: C.navy, borderLeft: `3px solid ${C.teal}` }}>{g.x}</div>
+          );
+          if (g.t === "note") return (
+            <p key={gi} className="text-xs mt-1.5 leading-relaxed" style={{ color: "#0C2D4899" }}>{g.x}</p>
+          );
+          return (
+            <div key={gi} className="rounded-lg overflow-hidden mt-1" style={{ border: "1px solid #0C2D4812" }}>
+              {g.list.map((it, j) => (
+                <div key={j} className={compact ? "text-xs" : "grid grid-cols-3 text-xs"} style={{ background: j % 2 ? "#fff" : "#FBFAF7" }}>
+                  {compact ? (
+                    <div className="p-1.5 leading-relaxed"><span className="font-bold" style={{ color: C.tealDark }}>{it.k}</span><span className="font-bold" style={{ color: C.navy }}>｜{it.v}</span></div>
+                  ) : (
+                    <>
+                      <div className="p-2 font-bold" style={{ color: C.tealDark, background: "#0C2D4806" }}>{it.k}</div>
+                      <div className="col-span-2 p-2 font-bold leading-relaxed" style={{ color: C.navy }}>{it.v}</div>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-      {sec.notes.map((n, j) => (
-        <p key={j} className="text-xs mt-1.5 leading-relaxed" style={{ color: "#0C2D4899" }}>{n}</p>
-      ))}
-    </>
-  );
+          );
+        })}
+      </>
+    );
+  };
 
   return (
     <div>
@@ -1026,7 +1122,7 @@ function GearBlock({ text, rigs, links }) {
               <summary className="px-3 py-2.5 text-sm font-black cursor-pointer flex items-center list-none" style={{ color: C.navy }}>
                 {sec.title || "📋"}<span className="ml-auto" style={{ color: C.teal }}>▾</span>
               </summary>
-              <div className="px-3 pb-3"><Rows sec={sec} /></div>
+              <div className="px-3 pb-3"><Items sec={sec} /></div>
             </details>
           ))}
         </div>
@@ -1042,7 +1138,7 @@ function GearBlock({ text, rigs, links }) {
             ))}
           </div>
           <div className="rounded-xl p-3" style={{ background: "#F7F3EC", border: "1.5px solid #0C2D4815" }}>
-            <Rows sec={sections[Math.min(tabIdx, sections.length - 1)]} />
+            <Items sec={sections[Math.min(tabIdx, sections.length - 1)]} />
           </div>
         </div>
       )}
@@ -1052,7 +1148,7 @@ function GearBlock({ text, rigs, links }) {
           {sections.map((sec, i) => (
             <div key={i} className="rounded-xl p-2.5" style={{ background: "#F7F3EC", border: "1.5px solid #0C2D4815" }}>
               <div className="text-xs font-black mb-1.5" style={{ color: C.navy }}>{sec.title || "📋"}</div>
-              <Rows sec={sec} compact />
+              <Items sec={sec} compact />
             </div>
           ))}
         </div>
@@ -1489,7 +1585,7 @@ function TripEditor({ trip, orderCount, rentals, onSave, onDelete, onDuplicate }
           {L("targets", "目標魚（頓號分隔）")}
           {L("depth", "水深")}
           <textarea className={aInput} style={aStyle} rows={2} placeholder={"裝備建議（" + langName + "）"} value={f["gear" + sfx] || ""} onChange={(e) => setF({ ...f, ["gear" + sfx]: e.target.value })} />
-          {L("rigs", "建議釣組（頓號分隔）")}
+          {L("rigs", "建議釣組（頓號分隔；「◯◯釣法：」可分組，例：鐵板釣法：、小鐵板 NT$250、遊動丸釣法：、遊動丸 NT$350）")}
           <div className="pt-1 text-xs font-bold" style={{ color: C.yellow }}>出租裝備顯示（前台租借選單／費用彈窗）</div>
           <div className="flex gap-1.5">
             {[["auto", "自動（依水深 80m 判定）"], ["manual", "手動指定"]].map(([m, lb]) => (
@@ -1652,7 +1748,7 @@ function AdminTrips({ trips, orders, rentals, setDb, db }) {
   const [f, setF] = useState({ date: "", name: "", type: "近海", price: "", muster: "", depth: "", targets: "" });
   const dupTrip = (t0, nd) => {
     if (!nd || !/^\d{4}-\d{2}-\d{2}$/.test(nd)) { alert("請先選擇要複製到的日期"); return false; }
-    if (trips.some((x) => x.date === nd)) { alert("該日期已有船班（一日一班），請選其他日期"); return false; }
+    /* 允許同日多班（候選開班、多選一出船） */
     const copy = { ...t0, id: "T" + Date.now(), date: nd, status: "報名中", statusExtra: [] };
     setDb((d) => ({ ...d, trips: [...d.trips, copy].sort((a, b) => a.date.localeCompare(b.date)) }));
     return true;
@@ -1689,6 +1785,9 @@ function AdminTrips({ trips, orders, rentals, setDb, db }) {
 
 /* 客戶新增／編輯 */
 function AdminCustomers({ customers, orders, setDb }) {
+  const [q, setQ] = useState("");
+  const kw = q.trim().toLowerCase();
+  const shown = kw ? customers.filter((c) => [c.name, c.nickname, c.phone, c.idno, c.address].some((v) => String(v || "").toLowerCase().includes(kw))) : customers;
   const [editId, setEditId] = useState(null);
   const [f, setF] = useState({ nickname: "", name: "", gender: "男", birth: "", idno: "", address: "", phone: "" });
   const [adding, setAdding] = useState(false);
@@ -1722,8 +1821,11 @@ function AdminCustomers({ customers, orders, setDb }) {
     <div className="space-y-2.5">
       {!adding && <Btn full small onClick={startAdd}>＋ 新增客戶</Btn>}
       {adding && <Fields onSave={saveNew} onCancel={() => setAdding(false)} />}
+      <input className={aInput} style={aStyle} placeholder="🔍 搜尋客戶（姓名／暱稱／電話／證號／地址）" value={q} onChange={(e) => setQ(e.target.value)} />
+      {kw && <p className="text-xs" style={{ color: "#F7F3EC88" }}>符合「{q.trim()}」：{shown.length} 筆</p>}
       {customers.length === 0 && !adding && <p className="text-center text-sm py-8" style={{ color: "#F7F3EC66" }}>尚無客戶資料。</p>}
-      {customers.map((c) => editId === c.id ? <Fields key={c.id} onSave={saveEdit} onCancel={() => setEditId(null)} /> : (
+      {customers.length > 0 && shown.length === 0 && <p className="text-center text-sm py-8" style={{ color: "#F7F3EC66" }}>找不到符合的客戶。</p>}
+      {shown.map((c) => editId === c.id ? <Fields key={c.id} onSave={saveEdit} onCancel={() => setEditId(null)} /> : (
         <div key={c.id} className="rounded-2xl p-4" style={{ background: "#F7F3EC10", border: "1px solid #F7F3EC22" }}>
           <div className="flex justify-between items-start gap-2">
             <div className="font-bold text-sm" style={{ color: C.sand }}>{c.name}{c.nickname ? `（${c.nickname}）` : ""}・{c.gender}</div>
@@ -1736,6 +1838,7 @@ function AdminCustomers({ customers, orders, setDb }) {
             <div>🪪 {c.idno}｜🎂 {c.birth}</div><div>📞 {c.phone}</div><div>🏠 {c.address}</div>
             {c.minorCount > 0 && <div>👶 未成年同行：{c.minorCount} 位（{c.minorMode === "self" ? "已代填" : "待聯絡"}）</div>}
             <div>出海次數：{orders.filter((o) => o.customerId === c.id && o.status !== "已取消").length} 次</div>
+            <div>🗓️ 名單加入：{fmtDT(c.createdAt)}</div>
           </div>
         </div>
       ))}
@@ -2183,6 +2286,7 @@ function AdminReminders({ db, setDb, aPing }) {
 
 function AdminPortal({ db, setDb, onExit }) {
   const [tab, setTab] = useState("dash");
+  const [oq, setOq] = useState(""); /* 訂單關鍵字搜尋 */
   const [aToast, setAToast] = useState("");
   const aPing = (m) => { setAToast(m); setTimeout(() => setAToast(""), 2400); };
   const { trips, orders, customers, inventory } = db;
@@ -2239,8 +2343,18 @@ function AdminPortal({ db, setDb, onExit }) {
         {tab === "orders" && (
           <div className="space-y-2.5">
             <AdminNewOrder trips={trips} customers={customers} orders={orders} rentals={db.rentals || RENTALS} setDb={setDb} ping={aPing} />
+            <input className={aInput} style={aStyle} placeholder="🔍 搜尋訂單（姓名／暱稱／電話／船班／代碼／狀態）" value={oq} onChange={(e) => setOq(e.target.value)} />
             {orders.length === 0 && <p className="text-center text-sm py-8" style={{ color: "#F7F3EC66" }}>尚無訂單。可用上方「代客報名」建立，或由前台完成報名後即時顯示於此。</p>}
-            {[...orders].reverse().map((o) => {
+            {(() => {
+              const kw = oq.trim().toLowerCase();
+              const shownO = kw ? orders.filter((o) => {
+                const tp = trips.find((x) => x.id === o.tripId);
+                return [o.name, o.nickname, o.phone, o.bookingCode, o.status, o.role, tp?.name, tp?.date].some((v) => String(v || "").toLowerCase().includes(kw));
+              }) : orders;
+              return (<>
+              {kw && <p className="text-xs" style={{ color: "#F7F3EC88" }}>符合「{oq.trim()}」：{shownO.length} 筆</p>}
+              {orders.length > 0 && shownO.length === 0 && <p className="text-center text-sm py-8" style={{ color: "#F7F3EC66" }}>找不到符合的訂單。</p>}
+              {[...shownO].reverse().map((o) => {
               const t = trips.find((x) => x.id === o.tripId);
               return (
                 <div key={o.id} className="rounded-2xl p-4" style={{ background: "#F7F3EC10", border: "1px solid #F7F3EC22" }}>
@@ -2249,6 +2363,7 @@ function AdminPortal({ db, setDb, onExit }) {
                       <div className="font-bold text-sm" style={{ color: C.sand }}>{o.name}（{o.nickname}）・{o.role}{o.isMinor ? "・未成年" : ""}</div>
                       <div className="text-xs mt-0.5" style={{ color: "#F7F3EC88" }}>{t?.date} {t?.name}｜📞 {o.phone}</div>
                       <div className="text-xs mt-0.5" style={{ color: "#F7F3EC88" }}>船資 NT${o.price.toLocaleString()}{o.rental ? `＋租借 ${o.rental} NT$${o.rentalPrice}` : ""}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "#F7F3EC66" }}>🗓️ 訂單成立：{fmtDT(o.createdAt)}{o.bookingCode ? `｜代碼 ${o.bookingCode}` : ""}</div>
                     </div>
                     <Tag tone={o.status === "已取消" ? "red" : o.status === "候補" ? "orange" : "teal"}>{o.status}</Tag>
                   </div>
@@ -2261,6 +2376,8 @@ function AdminPortal({ db, setDb, onExit }) {
                 </div>
               );
             })}
+              </>);
+            })()}
           </div>
         )}
 
