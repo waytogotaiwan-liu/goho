@@ -33,6 +33,7 @@ async function callFn(payload) {
 
 export const api = {
   list: () => callFn({ action: 'list' }),
+  checkId: (idno) => callFn({ action: 'check_id', idno }),
   register: (customer) => callFn({ action: 'register', customer }),
   login: (idno, birth) => callFn({ action: 'login', idno, birth }),
   book: (p) => callFn({ action: 'book', ...p }),
