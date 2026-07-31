@@ -161,7 +161,7 @@ zh: {
   rank0:"五賀新手", rank1:"見習船員", rank2:"合格釣手", rank3:"五賀老手",
   nextRank:"再 {n} XP 升級為「{r}」", maxRank:"已達最高階級！", taskN:"任務 {i}｜", doneLbl:"已完成", nextStep:"← 下一步", nextStepB:"下一步", questFooter:"完成全部任務即代表您已了解報班流程，可安心出海 ⚓",
   calTitle:"{y} 年 {m} 月船班", listV:"清單", monthV:"月曆", openTripBtn:"＋ 我要開班（依服務項目在空班日期開班）",
-  lgAvail:"名額充足", lgFew:"即將額滿", lgFull:"已滿／取消", lgOpen:"▢ 空班可開", canOpen:"可開", cxl:"取消", remainS:"餘{n}", nTrips:"{n}班", pickTrip:"本日有多個候選船班，請選擇要報名的班別（最終以「確定出船」的班別出海）",
+  lgAvail:"名額充足", lgFew:"即將額滿", lgFull:"已滿／取消", lgOpen:"▢ 空班可開", canOpen:"可開", cxl:"取消", remainS:"餘{n}", nTrips:"{n}班", pickTrip:"本日有多個候選船班，請選擇要報名的班別（最終以「確定出船」的班別出海）", consentTitle:"報名前確認", consentBody:"是否都已確認了解並同意所有報班規定？包含一週內無故取消仍需收取船資。", consentYes:"是，我了解並同意，送出報名", consentNo:"否，我還有疑問", consentContactT:"沒問題！先找真人客服聊聊 👋", consentContactD:"任何關於船班、費用、取消規定的疑問，都歡迎直接詢問：", consentCall:"📞 電話聯繫客服", consentLine:"💬 官方 LINE 小秘書", consentBack:"← 返回", recoBanner:"🎯 不知道怎麼選？讓小賀推薦適合你的船班", recoTitle:"小賀幫你挑船班", recoQexp:"之前有船釣的體驗嗎？", recoExp0:"沒有，第一次 🌱", recoExp1:"有過幾次 🎣", recoExp2:"我是老手 💪", recoQreel:"手邊有捲線器嗎？", recoReel0:"還沒有（想用租借）", recoReel1:"有自己的捲線器", recoQrt:"習慣用哪種捲線器？", recoRt0:"電動捲線器 ⚡", recoRt1:"手捲線器 ✋", recoRt2:"兩種都有", recoQstyle:"這趟想怎麼玩？", recoStyle0:"輕鬆入門就好（航程短）", recoStyle1:"想挑戰大物（航程長 OK）", recoResultT:"為你推薦", recoApply:"套用推薦排序 🎯", recoRedo:"重新回答", recoTag:"🎯 推薦", recoSorted:"已依你的偏好排序推薦船班", recoClear:"✕ 清除", recoEmpty:"目前沒有可報名的未來船班，歡迎先看看行事曆或聯絡我們開班！", recoR_newbie:"新手友善", recoR_step:"適合進階挑戰", recoR_far:"老手級遠征", recoR_rent:"現場可租裝備", recoR_elec:"適合電動捲深場", recoR_hand:"手捲輕鬆玩", recoR_easy:"航程短好入門", recoR_big:"目標大物", tAlreadyBooked:"⚠️ 您已報名此船班，請勿重複報名（報名代碼 {c}）", blockedMsg:"您的帳戶目前無法線上報名（有無故取消未付款紀錄）。請聯繫客服處理後恢復報名權限。",
   musterAt:"⏰ {t} 集合", remain:"剩 {n} 位", waitlist:"候補中",
   otTitle:"我要開班", otSub:"依規定：釣友可自行發起船班", otDate:"出發日期（限 24 小時以後）", otSvc:"服務項目",
   otErrSel:"請選擇日期與服務項目。", otErr24:"出發前 24 小時內不開放開班，請改選較晚的日期。", otErrDup:"該日期已有船班，請直接報名或改選其他日期。",
@@ -214,7 +214,7 @@ en: {
   rank0:"GOHO Rookie", rank1:"Deckhand", rank2:"Qualified Angler", rank3:"GOHO Veteran",
   nextRank:"{n} XP to reach \u201c{r}\u201d", maxRank:"Max rank reached!", taskN:"Quest {i} | ", doneLbl:"Done", nextStep:"← Next", nextStepB:"Next", questFooter:"Finish all quests and you're ready to set sail ⚓",
   calTitle:"Trips · {y}/{m}", listV:"List", monthV:"Month", openTripBtn:"+ Start a trip (pick a service on an open date)",
-  lgAvail:"Available", lgFew:"Almost full", lgFull:"Full / cancelled", lgOpen:"▢ Open date", canOpen:"Open", cxl:"CXL", remainS:"{n} left", nTrips:"{n} trips", pickTrip:"Multiple candidate trips on this day — pick one to register (the trip marked Confirmed will sail)",
+  lgAvail:"Available", lgFew:"Almost full", lgFull:"Full / cancelled", lgOpen:"▢ Open date", canOpen:"Open", cxl:"CXL", remainS:"{n} left", nTrips:"{n} trips", pickTrip:"Multiple candidate trips on this day — pick one to register (the trip marked Confirmed will sail)", consentTitle:"Before you book", consentBody:"Have you read and agreed to all booking rules, including that cancellations within 7 days are still charged the full fare?", consentYes:"Yes, I agree — submit my booking", consentNo:"No, I have questions", consentContactT:"No problem! Talk to a human first 👋", consentContactD:"Any questions about trips, fees, or cancellation rules — just ask us:", consentCall:"📞 Call us", consentLine:"💬 Official LINE", consentBack:"← Back", recoBanner:"🎯 Not sure which trip? Let us recommend one", recoTitle:"Find your trip", recoQexp:"Have you been boat fishing before?", recoExp0:"No, first time 🌱", recoExp1:"A few times 🎣", recoExp2:"Experienced 💪", recoQreel:"Do you own a reel?", recoReel0:"Not yet (will rent)", recoReel1:"Yes, I have my own", recoQrt:"Which reel do you prefer?", recoRt0:"Electric reel ⚡", recoRt1:"Manual reel ✋", recoRt2:"Both", recoQstyle:"What kind of trip?", recoStyle0:"Easy intro (short trip)", recoStyle1:"Big-game challenge (long trip OK)", recoResultT:"Recommended for you", recoApply:"Apply recommendation 🎯", recoRedo:"Start over", recoTag:"🎯 Pick", recoSorted:"Trips sorted by your preferences", recoClear:"✕ Clear", recoEmpty:"No upcoming bookable trips right now — check the calendar or contact us to open one!", recoR_newbie:"Beginner friendly", recoR_step:"Great next step", recoR_far:"Expert expedition", recoR_rent:"Gear rental on site", recoR_elec:"Great for electric reels", recoR_hand:"Easy with manual reel", recoR_easy:"Short & easy trip", recoR_big:"Big-game targets", tAlreadyBooked:"⚠️ You are already booked on this trip — please do not book again (code {c})", blockedMsg:"Online booking is currently unavailable for your account (unpaid no-show cancellation on record). Please contact us to restore access.",
   musterAt:"⏰ Muster {t}", remain:"{n} left", waitlist:"Waitlist",
   otTitle:"Start a Trip", otSub:"Anglers may initiate trips per our rules", otDate:"Departure date (24 h+ ahead only)", otSvc:"Service",
   otErrSel:"Please choose a date and a service.", otErr24:"Trips can't be started within 24 h of departure — pick a later date.", otErrDup:"A trip already exists that day — join it or pick another date.",
@@ -267,7 +267,7 @@ ja: {
   rank0:"五賀ビギナー", rank1:"見習い船員", rank2:"一人前の釣り師", rank3:"五賀ベテラン",
   nextRank:"あと {n} XP で「{r}」に昇格", maxRank:"最高ランク達成！", taskN:"クエスト {i}｜", doneLbl:"完了", nextStep:"← 次へ", nextStepB:"次へ", questFooter:"全クエスト完了＝予約の流れはバッチリ、安心して出港できます ⚓",
   calTitle:"{y}年{m}月の便", listV:"リスト", monthV:"カレンダー", openTripBtn:"＋ 便を立てる（空き日にサービスを選んで開催）",
-  lgAvail:"空きあり", lgFew:"残りわずか", lgFull:"満席／中止", lgOpen:"▢ 開催可能", canOpen:"開催可", cxl:"中止", remainS:"残{n}", nTrips:"{n}便", pickTrip:"この日は複数の候補便があります。ご希望の便を選択してください（「出船確定」の便が出航します）",
+  lgAvail:"空きあり", lgFew:"残りわずか", lgFull:"満席／中止", lgOpen:"▢ 開催可能", canOpen:"開催可", cxl:"中止", remainS:"残{n}", nTrips:"{n}便", pickTrip:"この日は複数の候補便があります。ご希望の便を選択してください（「出船確定」の便が出航します）", consentTitle:"お申し込み前の確認", consentBody:"すべての乗船規定（出発 7 日以内のキャンセルでも乗船料全額が発生することを含む）をご確認・同意いただけましたか？", consentYes:"はい、同意して申し込む", consentNo:"いいえ、質問があります", consentContactT:"かしこまりました！スタッフにご相談ください 👋", consentContactD:"船便・料金・キャンセル規定など、お気軽にお問い合わせください：", consentCall:"📞 電話で問い合わせ", consentLine:"💬 公式 LINE", consentBack:"← 戻る", recoBanner:"🎯 どの便にするか迷ったら？おすすめ診断", recoTitle:"あなたに合う便を診断", recoQexp:"船釣りのご経験はありますか？", recoExp0:"初めてです 🌱", recoExp1:"数回あります 🎣", recoExp2:"ベテランです 💪", recoQreel:"リールをお持ちですか？", recoReel0:"まだ（レンタル希望）", recoReel1:"持っています", recoQrt:"よく使うリールは？", recoRt0:"電動リール ⚡", recoRt1:"手巻きリール ✋", recoRt2:"両方", recoQstyle:"今回はどんな釣りに？", recoStyle0:"気軽に入門（短時間）", recoStyle1:"大物に挑戦（長時間 OK）", recoResultT:"おすすめの便", recoApply:"おすすめ順に並べる 🎯", recoRedo:"やり直す", recoTag:"🎯 おすすめ", recoSorted:"ご希望に合わせて並べ替えました", recoClear:"✕ 解除", recoEmpty:"現在予約可能な今後の便はありません。カレンダーをご覧いただくか、お問い合わせください！", recoR_newbie:"初心者向け", recoR_step:"ステップアップに最適", recoR_far:"ベテラン向け遠征", recoR_rent:"レンタルあり", recoR_elec:"電動リール向き", recoR_hand:"手巻きで気軽に", recoR_easy:"短時間で入門", recoR_big:"大物狙い", tAlreadyBooked:"⚠️ すでにお申し込み済みです。重複のお申し込みはご遠慮ください（コード {c}）", blockedMsg:"現在オンライン予約をご利用いただけません（未払いの無断キャンセル履歴があります）。カスタマーサービスまでご連絡ください。",
   musterAt:"⏰ {t} 集合", remain:"残り {n} 名", waitlist:"キャンセル待ち",
   otTitle:"便を立てる", otSub:"規定により釣り客が便を発起できます", otDate:"出発日（24時間以降のみ）", otSvc:"サービス",
   otErrSel:"日付とサービスを選択してください。", otErr24:"出発24時間前を切った開催はできません。別の日をお選びください。", otErrDup:"その日はすでに便があります。参加するか別の日をお選びください。",
@@ -354,7 +354,7 @@ const DEFAULT_REMINDERS = [
   { id: "r7", zh: "以束帶標記自己的漁獲", en: "Tag your catch with a cable tie", ja: "釣果は結束バンドで目印を", types: ["近海", "中遠程", "離島"], liveBaitOnly: false },
 ];
 function seedDb() {
-  return { statusCfg: null, servicesCfg: null, trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING, reminders: DEFAULT_REMINDERS };
+  return { statusCfg: null, servicesCfg: null, recoCfg: null, trips: DEFAULT_TRIPS, orders: [], customers: [], inventory: DEFAULT_INVENTORY, quest: {}, announcement: { zh: DEFAULT_ANNOUNCEMENT, en: "", ja: "" }, rules: DEFAULT_RULES, posts: DEFAULT_POSTS, contactPage: DEFAULT_CONTACT_PAGE, rentals: RENTALS, pricing: PRICING, reminders: DEFAULT_REMINDERS };
 }
 async function loadStore() {
   let localQuest = {};
@@ -367,9 +367,11 @@ async function loadStore() {
       const normAnn = (a) => (typeof a === "string" ? { zh: a, en: "", ja: "" } : a);
       applyStatusCfg(d.statusCfg);
       applyServicesCfg(d.servicesCfg);
+      applyRecoCfg(d.recoCfg);
       return {
         statusCfg: Array.isArray(d.statusCfg) && d.statusCfg.length ? d.statusCfg : null,
         servicesCfg: Array.isArray(d.servicesCfg) && d.servicesCfg.length ? d.servicesCfg : null,
+        recoCfg: Array.isArray(d.recoCfg) && d.recoCfg.length ? d.recoCfg : null,
         trips: (d.trips || base.trips).map((t) => ({ status: "報名中", ...t })),
         orders: [], customers: [], inventory: d.inventory || base.inventory,
         quest: { ...(d.quest || {}), ...localQuest }, announcement: normAnn(d.announcement || base.announcement), rules: d.rules || base.rules,
@@ -748,9 +750,96 @@ function remainOf(trip, orders) {
 }
 function hoursUntil(dateStr) { return (new Date(dateStr + "T00:00:00").getTime() - Date.now()) / 3.6e6; }
 
+/* 推薦問卷設定：後台「推薦問卷管理」可自訂題目、選項與連動推薦。
+   每個選項可設定：加權對象（區域或「租借優先」）、權重、推薦理由標籤。 */
+const DEFAULT_RECO_CFG = [
+  { q: "之前有船釣的體驗嗎？", options: [
+    { label: "沒有，第一次 🌱", zone: "近海", w: 3, reason: "新手友善" },
+    { label: "有過幾次 🎣", zone: "中遠程", w: 2, reason: "適合進階挑戰" },
+    { label: "我是老手 💪", zone: "離島", w: 3, reason: "老手級遠征" },
+  ] },
+  { q: "手邊有捲線器嗎？", options: [
+    { label: "還沒有（想用租借）", zone: "租借優先", w: 2, reason: "現場可租裝備" },
+    { label: "有手捲線器 ✋", zone: "近海", w: 2, reason: "手捲輕鬆玩" },
+    { label: "有電動捲線器 ⚡", zone: "中遠程", w: 2, reason: "適合電動捲深場" },
+    { label: "兩種都有", zone: "中遠程", w: 1, reason: "" },
+  ] },
+  { q: "這趟想怎麼玩？", options: [
+    { label: "輕鬆入門就好（航程短）", zone: "近海", w: 2, reason: "航程短好入門" },
+    { label: "想挑戰大物（航程長 OK）", zone: "中遠程", w: 2, reason: "目標大物" },
+  ] },
+];
+let RECO_CFG = DEFAULT_RECO_CFG;
+const applyRecoCfg = (cfg) => { RECO_CFG = Array.isArray(cfg) && cfg.length ? cfg : DEFAULT_RECO_CFG; };
+
+/* 個人化推薦計分：依所選選項加權（排序用，不隱藏任何班） */
+function recoScore(tp, ans) {
+  let s = 0; const r = [];
+  for (const o of ans || []) {
+    if (!o) continue;
+    const w = Number(o.w) || 1;
+    if (o.zone === "租借優先") {
+      if ((tp.rigs || []).length) { s += w; if (o.reason) r.push(o.reason); }
+    } else if (o.zone && o.zone === tp.type) {
+      s += w; if (o.reason) r.push(o.reason);
+    }
+  }
+  return { s, r: [...new Set(r)].slice(0, 3) };
+}
+
+/* 小賀推薦精靈：讀取後台設定的問卷，循序一次一題 */
+function RecoWizard({ trips, orders, onApply, onClose }) {
+  const cfg = RECO_CFG;
+  const [ans, setAns] = useState([]);
+  const [step, setStep] = useState(0);
+  const done = step >= cfg.length;
+  const pick = (opt) => { const n = [...ans]; n[step] = opt; setAns(n); setStep(step + 1); };
+  const back = () => (step === 0 ? onClose() : setStep(step - 1));
+  const stBookable = (tp) => (TRIP_STATUS[tp.status] || {}).bookable !== false;
+  const candidates = trips.filter(stBookable).map((tp) => ({ tp, ...recoScore(tp, ans) })).sort((x, y) => y.s - x.s || x.tp.date.localeCompare(y.tp.date));
+  const top = candidates[0];
+  return (
+    <div className="fixed inset-0 z-[65] flex items-end justify-center" style={{ background: "#0C2D48CC" }} onClick={onClose}>
+      <div className="w-full max-w-lg rounded-t-3xl p-5 space-y-3" style={{ background: C.sand, maxHeight: "80vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <div className="font-black" style={{ color: C.navy }}>🎯 {t("recoTitle")}</div>
+          <button onClick={onClose} className="text-2xl leading-none px-2" style={{ color: C.navy }}>×</button>
+        </div>
+        <div className="flex gap-1.5">{cfg.map((_, i) => <div key={i} className="h-1.5 flex-1 rounded-full" style={{ background: i < step || done ? C.teal : i === step ? C.orange : "#0C2D4815" }} />)}</div>
+        {!done ? (
+          <>
+            <div className="font-bold text-base pt-1" style={{ color: C.navy }}>{cfg[step].q}</div>
+            {(cfg[step].options || []).map((o, oi) => (
+              <button key={oi} onClick={() => pick(o)} className="w-full rounded-2xl p-3.5 text-left font-bold text-sm" style={{ background: "#fff", border: `2px solid ${ans[step] && ans[step].label === o.label ? C.teal : "#0C2D4815"}`, color: C.navy }}>{o.label}</button>
+            ))}
+            <Btn full kind="ghost" onClick={back}><span style={{ color: C.navy }}>{t("consentBack")}</span></Btn>
+          </>
+        ) : (
+          <>
+            <div className="font-bold text-base pt-1" style={{ color: C.navy }}>✨ {t("recoResultT")}</div>
+            {top && top.s > 0 ? (
+              <div className="rounded-2xl p-3.5" style={{ background: "#1EA89612", border: `2px solid ${C.teal}` }}>
+                <div className="font-black" style={{ color: C.navy }}>{top.tp.date.slice(5).replace("-", "/")}・{lx(top.tp, "name")}</div>
+                <div className="text-xs mt-1" style={{ color: "#0C2D4899" }}>NT${top.tp.price.toLocaleString()}｜⏰ {top.tp.muster}</div>
+                <div className="flex flex-wrap gap-1 mt-2">{top.r.map((x) => <span key={x} className="px-2 py-0.5 rounded-full text-xs font-bold" style={{ background: "#1EA89622", color: C.tealDark }}>{x}</span>)}</div>
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "#0C2D4899" }}>{t("recoEmpty")}</p>
+            )}
+            <Btn full kind="teal" onClick={() => onApply(ans)}>{t("recoApply")}</Btn>
+            <Btn full kind="ghost" onClick={() => { setAns([]); setStep(0); }}><span style={{ color: C.navy }}>{t("recoRedo")}</span></Btn>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
   const [view, setView] = useState("month"); /* 預設顯示月曆檢視 */
   const [dayPick, setDayPick] = useState(null); /* 多班同日：點日期後的選班視窗 */
+  const [showReco, setShowReco] = useState(false); /* 推薦精靈開關 */
+  const [reco, setReco] = useState(null); /* 已套用的推薦答案（僅排序，不隱藏） */
   const now = new Date();
   const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() }); // m: 0-11
   const shiftMonth = (d) => setYm(({ y, m }) => { const nm = m + d; return { y: y + Math.floor(nm / 12), m: ((nm % 12) + 12) % 12 }; });
@@ -785,6 +874,15 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
         </div>
       </div>
 
+      {/* 個人化推薦入口／已套用列 */}
+      {!reco ? (
+        <button onClick={() => setShowReco(true)} className="w-full rounded-2xl p-3.5 font-bold text-sm text-left" style={{ background: "#F4B94020", border: `2px solid ${C.orange}`, color: C.navy }}>{t("recoBanner")}</button>
+      ) : (
+        <div className="w-full rounded-2xl px-3.5 py-2.5 text-xs font-bold flex items-center justify-between" style={{ background: "#1EA89615", border: `1.5px solid ${C.teal}`, color: C.tealDark }}>
+          <span>🎯 {t("recoSorted")}</span>
+          <button onClick={() => setReco(null)} className="px-2 py-1 rounded-full" style={{ background: "#0C2D480D", color: C.navy }}>{t("recoClear")}</button>
+        </div>
+      )}
       <button onClick={() => onOpenNew(null)} className="w-full rounded-2xl p-3 text-sm font-bold flex items-center justify-center gap-2 border-2 border-dashed" style={{ borderColor: C.teal, color: C.tealDark, background: "#1EA8960E" }}>
         {t("openTripBtn")}
       </button>
@@ -821,6 +919,7 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
         </div>
       )}
 
+      {showReco && <RecoWizard trips={upcomingTrips} orders={orders} onApply={(a) => { setReco(a); setShowReco(false); }} onClose={() => setShowReco(false)} />}
       {dayPick && (byDate[dayPick] || []).length > 0 && (
         <div className="fixed inset-0 z-50 flex items-end justify-center" style={{ background: "#0C2D48CC" }} onClick={() => setDayPick(null)}>
           <div className="w-full max-w-lg rounded-t-3xl p-4 space-y-2" style={{ background: C.sand, maxHeight: "75vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
@@ -852,14 +951,22 @@ function TripCalendar({ trips, orders, onOpen, onOpenNew }) {
         </div>
       )}
 
-      {upcomingTrips.map((tp) => {
+      {(reco ? [...upcomingTrips].sort((x, y) => {
+        const bx = (TRIP_STATUS[x.status] || {}).bookable !== false;
+        const by = (TRIP_STATUS[y.status] || {}).bookable !== false;
+        const sx = bx ? recoScore(x, reco).s : -99;
+        const sy = by ? recoScore(y, reco).s : -99;
+        return sy - sx || x.date.localeCompare(y.date);
+      }) : upcomingTrips).map((tp) => {
         const rem = remainOf(tp, orders);
         const st = TRIP_STATUS[tp.status] || {};
+        const rsc = reco && st.bookable !== false ? recoScore(tp, reco) : null;
         return (
           <button key={tp.id} onClick={() => onOpen(tp)} className="w-full text-left rounded-2xl p-4 border-2 transition-transform active:scale-[.99]" style={{ background: "#fff", borderColor: st.bookable ? "#0C2D4815" : `${C.red}55` }}>
             <div className="flex items-center justify-between gap-2">
               <div className="font-black" style={{ color: C.navy }}>{tp.date.slice(5).replace("-", "/")}・{lx(tp, "name")}</div>
               <div className="flex flex-wrap gap-1 justify-end">
+                {rsc && rsc.s >= 2 && <Tag tone="yellow">{t("recoTag")}</Tag>}
                 <Tag tone={st.tone || "teal"}>{tSt(tp.status)}</Tag>
                 {(tp.statusExtra || []).map((sN) => <Tag key={sN} tone={(TRIP_STATUS[sN] || {}).tone || "teal"}>{tSt(sN)}</Tag>)}
               </div>
@@ -1744,6 +1851,60 @@ function ServicesManager({ db, setDb }) {
   );
 }
 
+/* 推薦問卷管理：後台自訂題目、選項與連動推薦（區域／權重／理由標籤） */
+function RecoManager({ db, setDb }) {
+  const [open, setOpen] = useState(false);
+  const initList = () => (Array.isArray(db.recoCfg) && db.recoCfg.length ? db.recoCfg : DEFAULT_RECO_CFG).map((q) => ({ q: q.q, options: (q.options || []).map((o) => ({ ...o })) }));
+  const [list, setList] = useState(initList);
+  const ZONES = ["近海", "中遠程", "離島", "專案", "休閒", "租借優先"];
+  const updQ = (i, v) => setList(list.map((x, idx) => (idx === i ? { ...x, q: v } : x)));
+  const updO = (i, j, patch) => setList(list.map((x, idx) => (idx === i ? { ...x, options: x.options.map((o, jdx) => (jdx === j ? { ...o, ...patch } : o)) } : x)));
+  const save = () => {
+    const clean = list.map((x) => ({ q: (x.q || "").trim(), options: (x.options || []).map((o) => ({ label: (o.label || "").trim(), zone: o.zone || "", w: Number(o.w) || 1, reason: (o.reason || "").trim() })).filter((o) => o.label) })).filter((x) => x.q && x.options.length);
+    if (!clean.length) { alert("至少需保留一題（且每題至少一個選項）"); return; }
+    applyRecoCfg(clean);
+    setDb((d) => ({ ...d, recoCfg: clean }));
+    setOpen(false);
+  };
+  if (!open) return <Btn full small kind="ghost" onClick={() => { setList(initList()); setOpen(true); }}>🧭 推薦問卷管理（編輯調查內容與連動推薦）</Btn>;
+  return (
+    <div className="rounded-2xl p-4 space-y-2" style={{ background: "#F7F3EC10", border: `1px solid ${C.yellow}` }}>
+      <div className="font-bold text-sm" style={{ color: C.yellow }}>🧭 推薦問卷管理</div>
+      <p className="text-xs" style={{ color: "#F7F3EC88" }}>客人依序回答題目後，系統依各選項的「推薦對象＋權重」為船班加分排序（不會隱藏任何班）。「租借優先」＝優先推薦有租借裝備的班；「理由」會顯示為推薦標籤。</p>
+      {list.map((qq, i) => (
+        <div key={i} className="rounded-xl p-2.5 space-y-1.5" style={{ background: "#0C2D4830", border: "1px solid #F7F3EC1A" }}>
+          <div className="flex gap-2 items-center">
+            <span className="text-xs font-black" style={{ color: C.yellow }}>Q{i + 1}</span>
+            <input className={aInput} style={aStyle} placeholder="題目文字" value={qq.q} onChange={(e) => updQ(i, e.target.value)} />
+            {list.length > 1 && <button onClick={() => setList(list.filter((_, idx) => idx !== i))} className="px-2 py-1 rounded-full text-xs font-bold" style={{ background: "#F7F3EC15", color: C.red }}>刪題</button>}
+          </div>
+          {qq.options.map((o, j) => (
+            <div key={j} className="rounded-lg p-2 space-y-1.5" style={{ background: "#0C2D4855" }}>
+              <div className="flex gap-1.5">
+                <input className={aInput} style={aStyle} placeholder="選項文字" value={o.label} onChange={(e) => updO(i, j, { label: e.target.value })} />
+                <button onClick={() => updO(i, j, null) || setList(list.map((x, idx) => (idx === i ? { ...x, options: x.options.filter((_, jdx) => jdx !== j) } : x)))} className="px-2 rounded-full text-xs font-bold" style={{ background: "#F7F3EC15", color: C.red }}>✕</button>
+              </div>
+              <div className="flex gap-1.5">
+                <select className={aInput} style={{ ...aStyle, background: C.navy }} value={o.zone || ""} onChange={(e) => updO(i, j, { zone: e.target.value })}>
+                  <option value="">（不加分）</option>
+                  {ZONES.map((z) => <option key={z} value={z}>推薦 {z}</option>)}
+                </select>
+                <select className={aInput} style={{ ...aStyle, background: C.navy, maxWidth: 92 }} value={o.w || 1} onChange={(e) => updO(i, j, { w: Number(e.target.value) })}>
+                  {[1, 2, 3].map((n) => <option key={n} value={n}>權重 {n}</option>)}
+                </select>
+                <input className={aInput} style={aStyle} placeholder="理由標籤（選填）" value={o.reason || ""} onChange={(e) => updO(i, j, { reason: e.target.value })} />
+              </div>
+            </div>
+          ))}
+          <Btn small kind="ghost" onClick={() => setList(list.map((x, idx) => (idx === i ? { ...x, options: [...x.options, { label: "", zone: "", w: 1, reason: "" }] } : x)))}>＋ 選項</Btn>
+        </div>
+      ))}
+      <Btn full small kind="ghost" onClick={() => setList([...list, { q: "", options: [{ label: "", zone: "", w: 1, reason: "" }] }])}>＋ 新增題目</Btn>
+      <div className="flex gap-2"><Btn full small kind="teal" onClick={save}>儲存問卷設定</Btn><Btn small kind="ghost" onClick={() => setOpen(false)}>取消</Btn></div>
+    </div>
+  );
+}
+
 function AdminTrips({ trips, orders, rentals, setDb, db }) {
   const [f, setF] = useState({ date: "", name: "", type: "近海", price: "", muster: "", depth: "", targets: "" });
   const dupTrip = (t0, nd) => {
@@ -1765,6 +1926,7 @@ function AdminTrips({ trips, orders, rentals, setDb, db }) {
     <div className="space-y-3">
       <StatusManager db={db} setDb={setDb} />
       <ServicesManager db={db} setDb={setDb} />
+      <RecoManager db={db} setDb={setDb} />
       <div className="rounded-2xl p-4 space-y-2" style={{ background: "#F7F3EC10", border: "1px solid #F7F3EC22" }}>
         <div className="font-bold text-sm" style={{ color: C.yellow }}>＋ 開新船班</div>
         <div className="grid grid-cols-2 gap-2">
@@ -1831,6 +1993,7 @@ function AdminCustomers({ customers, orders, setDb }) {
             <div className="font-bold text-sm" style={{ color: C.sand }}>{c.name}{c.nickname ? `（${c.nickname}）` : ""}・{c.gender}</div>
             <div className="flex gap-1.5">
               <button onClick={() => startEdit(c)} className="px-3 py-1.5 rounded-xl text-xs font-bold" style={{ background: C.orange, color: C.navyDeep }}>編輯</button>
+              <button onClick={() => { const nb = !c.blocked; const merged = { ...c, blocked: nb }; tables.upsertCustomer(merged).catch((e) => console.error(e)); setDb((d) => ({ ...d, customers: d.customers.map((x) => (x.id === c.id ? { ...x, blocked: nb } : x)) })); }} className="px-3 py-1.5 rounded-xl text-xs font-bold" style={{ background: c.blocked ? C.teal : "#F7F3EC15", color: c.blocked ? "#fff" : C.red, border: c.blocked ? "none" : `1px solid ${C.red}` }}>{c.blocked ? "✅ 恢復報名權" : "🚫 停權"}</button>
               <DeleteBtn onConfirm={() => del(c.id)} />
             </div>
           </div>
@@ -1839,6 +2002,7 @@ function AdminCustomers({ customers, orders, setDb }) {
             {c.minorCount > 0 && <div>👶 未成年同行：{c.minorCount} 位（{c.minorMode === "self" ? "已代填" : "待聯絡"}）</div>}
             <div>出海次數：{orders.filter((o) => o.customerId === c.id && o.status !== "已取消").length} 次</div>
             <div>🗓️ 名單加入：{fmtDT(c.createdAt)}</div>
+            {c.blocked && <div className="font-bold" style={{ color: C.red }}>🚫 已停權（無故取消未付款）— 無法線上報名，需聯繫客服</div>}
           </div>
         </div>
       ))}
@@ -2398,6 +2562,7 @@ function AdminPortal({ db, setDb, onExit }) {
 export default function GohoSystem() {
   const [db, setDbState] = useState(null);
   const [stage, setStage] = useState("welcome"); // welcome | noConsent | contact | register | app
+  const [consentAsk, setConsentAsk] = useState(null); /* 報名前確認視窗：null | {args:[...]} | "contact" */
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState("quest");
   const [openTrip, setOpenTrip] = useState(null);
@@ -2461,11 +2626,13 @@ export default function GohoSystem() {
     } catch (e) { console.error(e); return false; }
   };
 
-  const handleBook = async (trip, role, rental, rem, companions = []) => {
+  const doBook = async (trip, role, rental, rem, companions = []) => {
     if (role === "觀光") { ping(t("tSightOnly")); return; }
     try {
       const res = await api.book({ idno: user.idno, birth: user.birth, tripId: trip.id, role, rental: rental || null, companions });
+      if (res?.error === "blocked") { setOpenTrip(null); setConsentAsk("blocked"); return; }
       if (res?.error) { ping(res.error === "trip_full" ? t("tWait") : t("tPw")); return; }
+      if (res?.already) { setOpenTrip(null); ping(t("tAlreadyBooked", { c: res.bookingCode || "" })); return; }
       questDone("book");
       setOpenTrip(null);
       await refreshRosters();
@@ -2473,6 +2640,11 @@ export default function GohoSystem() {
       const extra = (user.minorMode === "self" ? (user.minors || []).length : 0) + companions.length;
       ping(res.status === "候補" ? t("tWait") : t("tBooked") + (extra ? t("tBookedX", { n: extra }) : ""));
     } catch (e) { console.error(e); ping(t("tPw")); }
+  };
+  /* 報名前確認：每次按「我要報名」都先確認已了解報班規定，按「是」才送出 */
+  const handleBook = (trip, role, rental, rem, companions = []) => {
+    if (role === "觀光") { ping(t("tSightOnly")); return; }
+    setConsentAsk({ args: [trip, role, rental, rem, companions] });
   };
 
   const handleCreateTrip = async (date, service, timing) => {
@@ -2580,6 +2752,28 @@ export default function GohoSystem() {
       )}
 
       {openTrip && <TripDetail trip={openTrip} orders={publicOrders} user={user} rentals={db.rentals} onBook={handleBook} onClose={() => setOpenTrip(null)} onRentalInfo={() => setShowRentalFee(true)} />}
+      {consentAsk && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-5" style={{ background: "#0C2D48DD" }}>
+          <div className="w-full max-w-md rounded-3xl p-5 space-y-3" style={{ background: C.sand }}>
+            {consentAsk === "contact" || consentAsk === "blocked" ? (
+              <>
+                <div className="font-black text-lg" style={{ color: C.navy }}>{consentAsk === "blocked" ? "🚫 暫停線上報名" : t("consentContactT")}</div>
+                <p className="text-sm leading-relaxed font-bold" style={{ color: consentAsk === "blocked" ? C.red : "#0C2D48CC" }}>{consentAsk === "blocked" ? t("blockedMsg") : t("consentContactD")}</p>
+                <a href="tel:0988098975" className="block w-full rounded-xl px-5 py-3 font-bold tracking-wide text-center" style={{ background: C.teal, color: "#fff", textDecoration: "none" }}>{t("consentCall")}</a>
+                <a href={CONTACT.lineOA} target="_blank" rel="noreferrer" className="block w-full rounded-xl px-5 py-3 font-bold tracking-wide text-center" style={{ background: C.navy, color: C.sand, textDecoration: "none" }}>{t("consentLine")}</a>
+                <Btn full kind="ghost" onClick={() => setConsentAsk(null)}><span style={{ color: C.navy }}>{t("consentBack")}</span></Btn>
+              </>
+            ) : (
+              <>
+                <div className="font-black text-lg" style={{ color: C.navy }}>⚓ {t("consentTitle")}</div>
+                <p className="text-sm leading-relaxed font-bold" style={{ color: "#0C2D48CC" }}>{t("consentBody")}</p>
+                <Btn full kind="teal" onClick={() => { const a = consentAsk.args; setConsentAsk(null); doBook(...a); }}>{t("consentYes")}</Btn>
+                <Btn full kind="ghost" onClick={() => setConsentAsk("contact")}><span style={{ color: C.navy }}>{t("consentNo")}</span></Btn>
+              </>
+            )}
+          </div>
+        </div>
+      )}
       {openNew !== null && <OpenTripModal presetDate={openNew || ""} trips={db.trips} onCreate={handleCreateTrip} onClose={() => setOpenNew(null)} />}
       {showRentalFee && <RentalFeeModal rentals={db.rentals} trip={openTrip} onClose={() => setShowRentalFee(false)} />}
 

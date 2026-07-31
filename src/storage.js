@@ -49,8 +49,8 @@ export const auth = {
 }
 
 /* ---------- 欄位對應（資料表 snake_case ↔ App camelCase） ---------- */
-const fromCustomerRow = (r) => ({ id: r.id, name: r.name, nickname: r.nickname, gender: r.gender, birth: r.birth, idno: r.idno, phone: r.phone, address: r.address, minors: r.minors || [], minorMode: r.minor_mode, minorCount: r.minor_count, createdAt: r.created_at })
-const toCustomerRow = (c) => ({ id: c.id, name: c.name, nickname: c.nickname ?? null, gender: c.gender, birth: c.birth, idno: c.idno, phone: c.phone, address: c.address, minors: c.minors ?? [], minor_mode: c.minorMode ?? 'none', minor_count: c.minorCount ?? 0 })
+const fromCustomerRow = (r) => ({ id: r.id, name: r.name, nickname: r.nickname, gender: r.gender, birth: r.birth, idno: r.idno, phone: r.phone, address: r.address, minors: r.minors || [], minorMode: r.minor_mode, minorCount: r.minor_count, createdAt: r.created_at, blocked: !!r.blocked })
+const toCustomerRow = (c) => ({ id: c.id, name: c.name, nickname: c.nickname ?? null, gender: c.gender, birth: c.birth, idno: c.idno, phone: c.phone, address: c.address, minors: c.minors ?? [], minor_mode: c.minorMode ?? 'none', minor_count: c.minorCount ?? 0, blocked: !!c.blocked })
 const fromOrderRow = (r) => ({ id: r.id, tripId: r.trip_id, customerId: r.customer_id, name: r.name, nickname: r.nickname, phone: r.phone, role: r.role, price: r.price, rental: r.rental, rentalPrice: r.rental_price, status: r.status, paid: r.paid, isMinor: r.is_minor, bookingCode: r.booking_code, createdAt: r.created_at })
 const toOrderRow = (o) => ({ id: o.id, customer_id: o.customerId ?? null, trip_id: o.tripId, name: o.name, nickname: o.nickname, phone: o.phone, role: o.role, price: o.price, rental: o.rental ?? null, rental_price: o.rentalPrice ?? 0, paid: !!o.paid, is_minor: !!o.isMinor, status: o.status, booking_code: o.bookingCode || genCode() })
 
